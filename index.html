@@ -1,8 +1,18 @@
 ---
 layout: default
-title: Hank Quinlan, Horrible Cop
 ---
-<div class="blurb">
-	<h1>Hi there, I'm Hank Quinlan!</h1>
-	<p>I'm best known as the horrible cop from <em>A Touch of Evil</em> Don't trust me. <a href="/about">Read more about my life...</a></p>
-</div><!-- /.blurb -->
+
+<div class="home">
+
+  
+  <ul class="post-list">
+    {% for post in site.posts %}
+     <a href="{{ post.url | prepend: site.baseurl }}">
+     
+     <li class="post-box">
+         <span class="post-meta"><strong>{{ post.date | date: "%-d" }}</strong><br />{{ post.date | date: "%b" }}</span>
+         <h2 class="post-link">{{ post.title }}</h2>
+      </li></a>
+    {% endfor %}
+  </ul>
+</div>
