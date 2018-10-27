@@ -6,8 +6,8 @@
 # 'jekyll serve'. If you change this file, please restart the server process.
 
 # Site settings
-title: Steve Mould
-tagline: "Science person. I make YouTube videos, stage shows and TV shows. And I write books"
+title: "I'm Steve Mould"
+tagline: "I'm a science person<br/>I make YouTube videos, stage shows and TV shows. And I write books"
 picture: square-face.jpg #keep a 100x100 image inside images folder.
 email: steve@stevemould.com
 description: > # this means to ignore newlines until "baseurl:"
