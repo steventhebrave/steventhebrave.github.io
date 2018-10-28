@@ -49,16 +49,16 @@ include: [_pages]
 #   startings: []
   
   
-prose:
-  rooturl: ''
-  siteurl: 'http://prose.github.io/starter/'
-  relativeLinks: 'http://prose.github.io/starter/links.jsonp'
-  media: 'images'
-  ignore:
-    - index.md
-    - _config.yml
-    - /_layouts
-    - /_includes
+# prose:
+#   rooturl: ''
+#   siteurl: 'http://prose.github.io/starter/'
+#   relativeLinks: 'http://prose.github.io/starter/links.jsonp'
+#   media: 'images'
+#   ignore:
+#     - index.md
+#     - _config.yml
+#     - /_layouts
+#     - /_includes
 
 
-gems: [jekyll-paginate, jekyll-seo-tag]
+# gems: [jekyll-paginate, jekyll-seo-tag]
