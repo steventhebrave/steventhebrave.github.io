@@ -166,7 +166,7 @@ pre {
     margin-bottom: 3em;
 }
 
-.menu-link {
+.menu-link, .jumbo-button {
     background-color: $brand-color;
     padding: 5px 10px;
     color: #fff;
@@ -186,6 +186,7 @@ pre {
     }
 }
 
+.jumbo-button { padding: 15px 20px; }
 
 .footer {
     margin-top: 3em;
