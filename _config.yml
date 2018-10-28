@@ -7,7 +7,7 @@
 
 # Site settings
 title: "I'm Steve Mould"
-tagline: "I'm a science person<br/>I make YouTube videos, stage shows and TV shows. And I write books"
+tagline: "I make YouTube videos, stage shows, TV shows and books about science."
 picture: square-face.jpg #keep a 100x100 image inside images folder.
 email: steve@stevemould.com
 description: > # this means to ignore newlines until "baseurl:"
