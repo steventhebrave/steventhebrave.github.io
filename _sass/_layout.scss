@@ -23,7 +23,7 @@ body {
 
 a {
     color: $brand-color;
-    /*text-decoration: none;*/
+    font-weight: bold;
     &:hover {
         color: $h-color;
     }
@@ -127,6 +127,7 @@ pre {
 
 .jumbo a {
     text-decoration: none;
+    font-weight: normal;
 }
 
 .jumbo-button { 
@@ -160,7 +161,7 @@ pre {
     }
 }
 
-
+/*
 .post-meta {
     color: $background-color;
     display: table-cell;
@@ -186,6 +187,8 @@ pre {
     padding:0;
 
 }
+
+*/
 
 .site-header {
     margin-bottom: 3em;
@@ -215,10 +218,16 @@ pre {
 .footer {
     margin-top: 3em;
     border-top: 1px solid $grey-color-light;
+    font-size: 0.8em;
+    padding: 2em;
+}
+
+.footer a {
+    text-decoration: none;
 }
 
 
-
+/*
 .post-link {
     display: table-cell;
     padding: 0.5em;
@@ -242,8 +251,26 @@ pre {
     }
 }
 
+*/
 
 .highlight {
     margin: 0;
     display: inline-block;
+}
+
+/* responsive youtube */
+.embed-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+}
+
+.embed-container iframe, .embed-container object, .embed-container embed {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }

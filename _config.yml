@@ -28,8 +28,8 @@ kramdown:
   input: GFM
 highlighter: rouge
 
-# sass:
-#  style: compressed
+sass:
+ style: compressed
   
 # disqus-shortname: webjeda-sample
 # analytics: UA-83979019-1
