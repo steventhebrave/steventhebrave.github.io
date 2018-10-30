@@ -11,18 +11,14 @@
 
 <script>
 
-// Create the XHR object.
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
   if ("withCredentials" in xhr) {
-    // XHR for Chrome/Firefox/Opera/Safari.
     xhr.open(method, url, true);
   } else if (typeof XDomainRequest != "undefined") {
-    // XDomainRequest for IE.
     xhr = new XDomainRequest();
     xhr.open(method, url);
   } else {
-    // CORS not supported.
     xhr = null;
   }
   return xhr;
@@ -32,9 +28,7 @@ function addCommas(number) {
 	return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// Make the actual CORS request.
 function makeCorsRequest() {
-  // This is a sample server that supports CORS.
   var url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UCEIwxahdLz7bap-VDs9h35A&key=AIzaSyAuhQg04Ez9biRoVGEUZ9MCwgpF0dmy4xM';
 
   var xhr = createCORSRequest('GET', url);
@@ -43,11 +37,11 @@ function makeCorsRequest() {
     return;
   }
 
-  // Response handlers.
   xhr.onload = function() {
     var response = xhr.responseText;
     var data = JSON.parse(response);
     var statistics = data.items[0].statistics;
+    console.log(statistics);
     document.getElementById("subs").innerHTML=addCommas(statistics.subscriberCount);
     document.getElementById("views").innerHTML=addCommas(statistics.viewCount);
   };
