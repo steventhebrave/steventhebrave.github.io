@@ -1,9 +1,8 @@
 ---
 layout: page
 permalink: /contact/
+title: How to get in touch
 ---
-
-# How to get in touch
 
 I’m managed by Noel Gay Artists and Johnson & Alcock.
 
