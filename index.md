@@ -15,11 +15,11 @@ You can support my YouTube efforts [on Patreon](https://www.patreon.com/stevemou
 
 You can [book me for your event](/contact).
 
-You'll also find me performing science comedy shows With [Helen Arney](http://helenarney.com/) and [Matt Parker](http://standupmaths.com/) as [Festival Of The Spoken Nerd](https://festivalofthespokennerd.com/).
+You'll also find me performing science comedy shows with [Helen Arney](http://helenarney.com/) and [Matt Parker](http://standupmaths.com/) as [Festival Of The Spoken Nerd](https://festivalofthespokennerd.com/).
 
 [{% include img.html image="fotsn.jpg" ratio="56.25" %}](https://festivalofthespokennerd.com/)
 
-✒️ I've written 3 kids books: [How To Be A Scientist](https://amzn.to/2Dd0ejn), [The Bacteria Book](https://amzn.to/2yFuort) and [Science is Magic](https://amzn.to/2OVDjzg).
+✒️ I've written 3 books for kids: [How To Be A Scientist](https://amzn.to/2Dd0ejn), [The Bacteria Book](https://amzn.to/2yFuort) and [Science is Magic](https://amzn.to/2OVDjzg).
 
 [{% include img.html image="all3small.jpg" ratio="56.25" %}](https://amzn.to/2Oav7Gh)
 
