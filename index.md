@@ -1,6 +1,6 @@
 ---
 layout: front-page
-Title: Steve Mould. Science videos, TV shows, stage shows and books.
+title: Steve Mould. Science videos, TV shows, stage shows and books.
 ---
 ## 📺 YouTube
 
