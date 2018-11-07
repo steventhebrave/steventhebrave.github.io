@@ -32,7 +32,7 @@ I've written 3 books for kids: [How To Be A Scientist](https://amzn.to/2Dd0ejn),
 
 And I've written a book for adults with [Helen Arney](http://helenarney.com/) called [The Element In The Room](https://amzn.to/2yGRbmM).
 
-[{% include img.html image="teitr.jpg" ratio="56.25" %}](https://amzn.to/2Oav7Gh)
+[{% include img.html image="teitr.png" ratio="56.25" %}](https://amzn.to/2Oav7Gh)
 
 ## 🛒 Maths toys
 
