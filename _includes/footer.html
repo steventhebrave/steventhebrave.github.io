@@ -41,7 +41,6 @@ function makeCorsRequest() {
     var response = xhr.responseText;
     var data = JSON.parse(response);
     var statistics = data.items[0].statistics;
-    console.log(statistics);
     document.getElementById("subs").innerHTML=addCommas(statistics.subscriberCount);
     document.getElementById("views").innerHTML=addCommas(statistics.viewCount);
   };
