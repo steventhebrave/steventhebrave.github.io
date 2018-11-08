@@ -6,8 +6,7 @@ title: Steve Mould. Science videos, TV shows, stage shows and books.
 
 I have <span id="subs">200,000</span> subscribers and <span id="views">16,000,000</span> views on [my YouTube channel](https://www.youtube.com/stevemould). Here's a playlist of some of my favorite videos:
 
-<div class='embed-container' onclick="this.style.display='none'; this.nextSibling.style.display='block';"><img src="{{site.baseurl}}/images/youtube-poster-play.jpg" style="cursor:pointer" /></div>
-<div class='embed-container' style="display:none"><iframe src='https://www.youtube-nocookie.com/embed/videoseries?list=PLcqX4UMXNKEfOtUdeSVeVHNayUofvk6Vy&autoplay=1' frameborder='0' allowfullscreen allow="autoplay; encrypted-media"></iframe></div>
+<div class='embed-container'><iframe style="visibility:hidden;" onload="this.style.visibility = 'visible';" src='https://www.youtube-nocookie.com/embed/videoseries?list=PLcqX4UMXNKEfOtUdeSVeVHNayUofvk6Vy' frameborder='0' allowfullscreen allow="autoplay; encrypted-media"></iframe></div>
 
 You can support my YouTube efforts [on Patreon](https://www.patreon.com/stevemould).
 
@@ -33,7 +32,7 @@ I've written 3 books for kids: [How To Be A Scientist](https://amzn.to/2Dd0ejn),
 
 And I've written a book for adults with [Helen Arney](http://helenarney.com/) called [The Element In The Room](https://amzn.to/2yGRbmM).
 
-[{% include img.html image="teitr.jpg" ratio="56.25" %}](https://amzn.to/2Oav7Gh)
+[{% include img.html image="teitr.png" ratio="56.25" %}](https://amzn.to/2Oav7Gh)
 
 ## 🛒 Maths toys
 
