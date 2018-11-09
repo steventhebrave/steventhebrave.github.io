@@ -65,3 +65,4 @@ compress_html:
 # gems: [jekyll-paginate, jekyll-seo-tag]
 plugins:
   - jekyll-seo-tag
+  - jekyll-sitemap
