@@ -10,7 +10,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" href="https://unpkg.com/picnic">
+<link rel="stylesheet" href="/css/picnic.mini.css">
 
 <style>
 
@@ -28,7 +28,56 @@ button, input {
 </style>
 </head>
   <body>
-        {{ content }}
+    <form onsubmit="makeCorsRequest()">
+    <input type="text" id="x"><br/>
+    <button onclick="makeCorsRequest()">⇩</button><br/>
+    <span id="y"></span>
+    </form>
+
+    <script>
+
+    function createCORSRequest(method, url) {
+      var xhr = new XMLHttpRequest();
+      if ("withCredentials" in xhr) {
+        xhr.open(method, url, true);
+      } else if (typeof XDomainRequest != "undefined") {
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+      } else {
+        xhr = null;
+      }
+      return xhr;
+    }
+
+    function addCommas(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function makeCorsRequest() {
+      event.preventDefault();
+      var x = document.getElementById('x').value;
+      var url = 'https://guess-the-algorithm.herokuapp.com/{{page.alg-number }}/?x=' + x;
+      var xhr = createCORSRequest('GET', url);
+      if (!xhr) {
+        alert('CORS not supported');
+        return;
+      }
+
+      xhr.onload = function() {
+        var response = xhr.responseText;
+        var data = JSON.parse(response);
+        document.getElementById("y").innerHTML = addCommas(data.y);
+      };
+
+      xhr.onerror = function() {
+        console.log('youtube stats update failed.');
+      };
+
+      xhr.send();
+    }
+
+    document.getElementById("x").focus();
+    </script>
   </body>
 
 </html>
