@@ -83,8 +83,12 @@ use {
       document.getElementById("y").innerHTML = "";
       document.getElementById("spinner").style.display = "block";
       var x = document.getElementById('x').value;
-      // var url = 'https://guess-the-algorithm.herokuapp.com/{{page.alg-number }}/?x=' + x;
-      var url = 'http://localhost:5000/{{page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
+      {% if site.GH_ENV == 'gh_pages' %}
+        var url = 'https://guess-the-algorithm.herokuapp.com';
+      {% else %}
+        var url = 'http://localhost:5000';
+      {% endif %}
+      url += '/{{page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
       var xhr = createCORSRequest('GET', url);
       if (!xhr) {
         alert('CORS not supported');

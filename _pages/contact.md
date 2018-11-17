@@ -17,7 +17,3 @@ Contact Anna Power on 020 7251 0125 or email [anna@johnsonandalcock.co.uk](mailt
 
 ## For non work matters…
 Find me on twitter [@moulds](https://twitter.com/moulds), [instagram](https://www.instagram.com/stevemouldscience/) and [facebook](https://www.facebook.com/stevemouldscience/) or email me at [steve@stevemould.com](mailto:steve@stevemould.com).
-
-<script type="text/javascript">
-	console.log({{ site.GH_ENV }});
-</script>
