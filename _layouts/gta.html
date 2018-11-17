@@ -25,16 +25,41 @@ button, input {
    text-align: center;
 }
 
+svg {
+  max-height: 1.5em;
+  fill: none;
+  stroke: #eee;
+  stroke-linecap: round;
+  stroke-width: 8%;
+  display: none;
+}
+
+use {
+  stroke: #0074d9;
+  animation: a 2s linear infinite
+}
+.y {
+  display: none;
+}
+
+@keyframes a { to { stroke-dashoffset: 0px } }
+
 </style>
 </head>
   <body>
     <form onsubmit="makeCorsRequest()">
     <input type="text" id="x"><br/>
     <button onclick="makeCorsRequest()">⇩</button><br/>
+    <svg id="spinner" viewBox="-2000 -1000 4000 2000">
+      <path id="inf" d="M354-354A500 500 0 1 1 354 354L-354-354A500 500 0 1 0-354 354z"></path>
+      <use xlink:href="#inf" stroke-dasharray="1570 5143" stroke-dashoffset="6713px"></use>
+    </svg>
     <span id="y"></span>
     </form>
 
     <script>
+
+    var data = {};
 
     function createCORSRequest(method, url) {
       var xhr = new XMLHttpRequest();
@@ -55,8 +80,11 @@ button, input {
 
     function makeCorsRequest() {
       event.preventDefault();
+      document.getElementById("y").innerHTML = "";
+      document.getElementById("spinner").style.display = "block";
       var x = document.getElementById('x').value;
-      var url = 'https://guess-the-algorithm.herokuapp.com/{{page.alg-number }}/?x=' + x;
+      // var url = 'https://guess-the-algorithm.herokuapp.com/{{page.alg-number }}/?x=' + x;
+      var url = 'http://localhost:5000/{{page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
       var xhr = createCORSRequest('GET', url);
       if (!xhr) {
         alert('CORS not supported');
@@ -64,9 +92,11 @@ button, input {
       }
 
       xhr.onload = function() {
+        document.getElementById("spinner").style.display = "none";
         var response = xhr.responseText;
-        var data = JSON.parse(response);
+        data = JSON.parse(response);
         document.getElementById("y").innerHTML = addCommas(data.y);
+        console.log(data);
       };
 
       xhr.onerror = function() {
