@@ -47,6 +47,8 @@ I set up an online shop called [Maths Gear](https://mathsgear.co.uk) with Matt P
 
 Any questions of comments, [get in touch](/contact).
 
+<!-- test -->
+
 ## ✉️ Subscribe to the mailing list
 
 I've never actually sent an email to this list. But at some point I might use it to send an update about what I'm up to.
