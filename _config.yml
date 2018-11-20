@@ -18,10 +18,6 @@ brand-color: '#a1ad59'
 brand-second-color: '#5d536b'
 permalink: ':title/'
 
-# Footer
-credits: webjeda #credits on the footer
-# version: 1.0
-
 # Build settings
 markdown: kramdown
 kramdown:
