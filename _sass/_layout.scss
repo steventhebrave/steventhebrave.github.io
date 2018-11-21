@@ -19,7 +19,6 @@ body {
     padding:0 10px 0 10px;
     margin:0;
     border-top: 4px solid $brand-color;
-    background-color: #fbfbfb;
 }
 
 a {
@@ -141,6 +140,11 @@ pre {
         color: #fff;
         background-color: $h-color;
     }
+}
+
+.left {
+    text-align: left;
+    padding: 20px 0 25px 0;
 }
 
 .main-title {

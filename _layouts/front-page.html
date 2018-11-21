@@ -1,56 +1,78 @@
 ---
-layout: default
+layout: compress
 ---
-<article class="post">
+<!DOCTYPE html>
+<html>
 
-  <div class="post-content">
-    {{ content }}
-  </div>
+  {% include head.html %}
 
-</article>
+  <body>
 
-<script>
+    {% include header.html %}
 
-function createCORSRequest(method, url) {
-  var xhr = new XMLHttpRequest();
-  if ("withCredentials" in xhr) {
-    xhr.open(method, url, true);
-  } else if (typeof XDomainRequest != "undefined") {
-    xhr = new XDomainRequest();
-    xhr.open(method, url);
-  } else {
-    xhr = null;
-  }
-  return xhr;
-}
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post">
 
-function addCommas(number) {
-	return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+          <div class="post-content">
+            {{ content }}
+          </div>
 
-function makeCorsRequest() {
-  var url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UCEIwxahdLz7bap-VDs9h35A&key=AIzaSyAuhQg04Ez9biRoVGEUZ9MCwgpF0dmy4xM';
+        </article>
+      </div>
+    </div>
 
-  var xhr = createCORSRequest('GET', url);
-  if (!xhr) {
-    alert('CORS not supported');
-    return;
-  }
+    {% include footer.html %}
 
-  xhr.onload = function() {
-    var response = xhr.responseText;
-    var data = JSON.parse(response);
-    var statistics = data.items[0].statistics;
-    document.getElementById("subs").innerHTML=addCommas(statistics.subscriberCount);
-    document.getElementById("views").innerHTML=addCommas(statistics.viewCount);
-  };
+    <script>
 
-  xhr.onerror = function() {
-    console.log('youtube stats update failed.');
-  };
+    function createCORSRequest(method, url) {
+      var xhr = new XMLHttpRequest();
+      if ("withCredentials" in xhr) {
+        xhr.open(method, url, true);
+      } else if (typeof XDomainRequest != "undefined") {
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+      } else {
+        xhr = null;
+      }
+      return xhr;
+    }
 
-  xhr.send();
-}
+    function addCommas(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
 
-makeCorsRequest();
-</script>
+    function makeCorsRequest() {
+      var url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UCEIwxahdLz7bap-VDs9h35A&key=AIzaSyAuhQg04Ez9biRoVGEUZ9MCwgpF0dmy4xM';
+
+      var xhr = createCORSRequest('GET', url);
+      if (!xhr) {
+        alert('CORS not supported');
+        return;
+      }
+
+      xhr.onload = function() {
+        var response = xhr.responseText;
+        var data = JSON.parse(response);
+        var statistics = data.items[0].statistics;
+        document.getElementById("subs").innerHTML=addCommas(statistics.subscriberCount);
+        document.getElementById("views").innerHTML=addCommas(statistics.viewCount);
+      };
+
+      xhr.onerror = function() {
+        console.log('youtube stats update failed.');
+      };
+
+      xhr.send();
+    }
+
+    makeCorsRequest();
+    </script>
+
+  </body>
+
+</html>
+
+
+
