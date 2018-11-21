@@ -7,7 +7,7 @@ title: How to get in touch
 I’m managed by Noel Gay Artists and Johnson & Alcock.
 
 ## For TV and radio…
-Contact Sophieclaire Armitage on 020 7836 3941 or email [SArmitage@noelgay.com](mailto:SArmitage@noelgay.com).
+Contact Sophieclaire Armitage on {% include phone.html number="20 7836 3941" %} or email [SArmitage@noelgay.com](mailto:SArmitage@noelgay.com).
 
 ## For live work…
 Contact Louise Fennimore on 020 7836 3941 or email [LFennimore@noelgay.com](mailto:LFennimore@noelgay.com).
