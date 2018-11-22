@@ -10,34 +10,20 @@
           {% include main.scss %}
           {% endcapture %}
           {{ include_to_scssify | scssify }}
-  </style>
 
-{% if page.layout == 'post' %}
-    <style>
-          {% capture include_to_scssify %}
-          {% include post.scss %}
-          {% endcapture %}
-          {{ include_to_scssify | scssify }}
+          {% if page.layout == 'page' %}
+            {% capture include_to_scssify %}
+            {% include page.scss %}
+            {% endcapture %}
+            {{ include_to_scssify | scssify }}
+          {% endif %}
+          {% if page.layout == 'front-page' %}
+            {% capture include_to_scssify %}
+            {% include front-page.scss %}
+            {% endcapture %}
+            {{ include_to_scssify | scssify }}
+          {% endif %}
   </style>
-{% endif %}
-
-{% if page.layout == 'front-page' %}
-    <style>
-          {% capture include_to_scssify %}
-          {% include front-page.scss %}
-          {% endcapture %}
-          {{ include_to_scssify | scssify }}
-  </style>
-{% endif %}
-
-{% if page.layout == 'page' %}
-    <style>
-          {% capture include_to_scssify %}
-          {% include page.scss %}
-          {% endcapture %}
-          {{ include_to_scssify | scssify }}
-  </style>
-{% endif %}
  
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
 
