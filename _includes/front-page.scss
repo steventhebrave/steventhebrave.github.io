@@ -1,0 +1,84 @@
+// Our variables
+$base-font-family: sans-serif;
+$base-font-size:   16px;
+$base-font-weight: 300;
+$small-font-size:  $base-font-size * 0.875;
+$base-line-height: 1.5;
+
+$spacing-unit:     30px;
+
+$text-color:       #555;
+$background-color: #fdfdfd;
+$brand-color:      {{site.brand-color}};
+$h-color:          {{site.brand-second-color}};
+$grey-color:       #828282;
+$grey-color-light: lighten($grey-color, 40%);
+$grey-color-dark:  darken($grey-color, 25%);
+
+// Width of the content area
+$content-width:    800px;
+
+$on-palm:          600px;
+$on-laptop:        800px;
+
+body {
+    margin:0;
+    border-top: 4px solid $brand-color;
+}
+
+.avatar {
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+}
+
+.jumbo {
+    text-align: center;
+    padding: 40px 0px 30px 0px;
+    border-bottom: 1px solid $grey-color-light;
+}
+
+.jumbo a {
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.jumbo-button { 
+    background-color: $brand-color;
+    color: #fff;
+    border-radius: 2px;
+    border: none;
+    padding: 10px 15px;
+    &:hover{
+        color: #fff;
+        background-color: $h-color;
+    }
+}
+
+.main-title {
+    font-size: 3em;
+    font-weight: 800;
+    line-height: 0;
+    color: #111;
+    margin-top: 0.67em;
+     @media screen and (max-width: $on-palm) {
+         font-size: 2em;
+    }
+}
+
+.tagline {
+    font-size: 1.5em;
+    font-weight: 400;
+    color: $grey-color;
+    opacity: 0.7;
+    margin-top: 0.67em;
+     @media screen and (max-width: $on-palm) {
+         font-size: 1.25em;
+    }
+}
+
+.icon {
+  height: 0.7em;
+  width: 0.7em;
+  fill: white;
+}

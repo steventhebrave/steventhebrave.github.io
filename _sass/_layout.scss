@@ -15,11 +15,6 @@ html {
  line-height: $base-line-height;
  font-size: $base-font-size;
 }
-body {
-    padding:0 10px 0 10px;
-    margin:0;
-    border-top: 4px solid $brand-color;
-}
 
 a {
     color: $brand-color;
@@ -38,12 +33,13 @@ img {
 }
 
 .wrapper {
+    padding: 0 10px 0 10px;
     max-width: 600px;
     margin: 0 auto;
 
 }
 
-.site-nav {
+/*.site-nav {
     background: #fff;
     background: rgba(255,255,255,.9);
     margin-top: 15px;
@@ -52,7 +48,7 @@ img {
     @media screen and (max-width: $on-palm) {
         text-align: center;
     }
-}
+}*/
 
 h1,h2,h3,h4,h5,h6{
     font-weight: bold;
@@ -113,61 +109,6 @@ pre {
 }
 */
 
-.avatar {
-    border-radius: 50%;
-    width: 200px;
-    height: 200px;
-}
-
-.jumbo {
-    text-align: center;
-    padding: 40px 0px 30px 0px;
-    border-bottom: 1px solid $grey-color-light;
-}
-
-.jumbo a {
-    text-decoration: none;
-    font-weight: normal;
-}
-
-.jumbo-button { 
-    background-color: $brand-color;
-    color: #fff;
-    border-radius: 2px;
-    border: none;
-    padding: 10px 15px;
-    &:hover{
-        color: #fff;
-        background-color: $h-color;
-    }
-}
-
-.left {
-    text-align: left;
-    padding: 20px 0 25px 0;
-}
-
-.main-title {
-    font-size: 3em;
-    font-weight: 800;
-    line-height: 0;
-    color: #111;
-    margin-top: 0.67em;
-     @media screen and (max-width: $on-palm) {
-         font-size: 2em;
-    }
-}
-
-.tagline {
-    font-size: 1.5em;
-    font-weight: 400;
-    color: $grey-color;
-    opacity: 0.7;
-    margin-top: 0.67em;
-     @media screen and (max-width: $on-palm) {
-         font-size: 1.25em;
-    }
-}
 
 /*
 .post-meta {
@@ -320,12 +261,6 @@ picture img {
     border: 1px solid $grey-color-light;
 }
 
-.icon {
-  height: 0.7em;
-  width: 0.7em;
-  fill: white;
-}
-
 #mc_embed_signup{
     background:#fff; 
 }
@@ -337,4 +272,3 @@ picture img {
 #mc_embed_signup .mc-field-group input:focus {border-color:#333;}
 #mc_embed_signup .button {clear:both; background-color: #aaa; border: 0 none; border-radius:4px; transition: all 0.23s ease-in-out 0s; color: #FFFFFF; cursor: pointer; display: inline-block; font-size:15px; font-weight: normal; height: 32px; line-height: 32px; margin: 0 5px 10px 0; padding: 0 22px; text-align: center; text-decoration: none; vertical-align: top; white-space: nowrap; width: auto;}
 #mc_embed_signup .button:hover {background-color:#777;}
-
