@@ -59,12 +59,13 @@ nav {
     min-height: 50px;
 }
 
-nav .avatar-wrapper {
+nav a {
 	position: absolute;
 	left: 50%;
 	margin-top: 10px;
+	-webkit-tap-highlight-color: transparent;
 }
 
-nav .avatar-wrapper a {
+nav a img {
 	margin-left: -50%;
 }
