@@ -59,12 +59,12 @@ nav {
     min-height: 50px;
 }
 
-nav a {
+nav .avatar-wrapper {
 	position: absolute;
 	left: 50%;
 	margin-top: 10px;
 }
 
-nav a img {
+nav .avatar-wrapper a {
 	margin-left: -50%;
 }
