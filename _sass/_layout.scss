@@ -260,6 +260,19 @@ picture img {
     border: 1px solid $grey-color-light;
 }
 
+
+.jumbo-button { 
+    background-color: $brand-color;
+    color: #fff;
+    border-radius: 2px;
+    border: none;
+    padding: 10px 15px;
+    &:hover{
+        color: #fff;
+        background-color: $h-color;
+    }
+}
+
 #mc_embed_signup{
     background:#fff; 
 }
