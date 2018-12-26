@@ -1,5 +1,5 @@
 ---
-# layout: compress
+layout: compress
 ---
 
 <!DOCTYPE html>
@@ -7,10 +7,8 @@
 <head>
 
 <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link rel="stylesheet" href="/css/picnic.mini.css">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
 
@@ -18,11 +16,41 @@ body {
    text-align: center;
    font-size: 2em;
    padding: 2em;
+   line-height: 1.5;
+   font-family: Arial, Helvetica, sans-serif;
+   box-sizing: border-box;
+   margin: auto;
+    max-width: 600px;
+}
+
+* {
+  box-sizing: inherit;
 }
 
 button, input {
    width: 200px;
    text-align: center;
+   border-radius: .2em;
+   font: inherit;
+}
+
+input {
+  height: 2.1em;
+  border: 1px solid #ccc;
+}
+
+input:focus {
+  border: 1px solid #0074d9;
+  outline: 0;
+}
+
+button {
+   margin: .3em 0;
+   padding: .3em .9em;
+   background: #0074d9;
+   color: #fff;
+   border: 0;
+   cursor: pointer;
 }
 
 svg {
@@ -38,15 +66,27 @@ use {
   stroke: #0074d9;
   animation: a 2s linear infinite
 }
-.y {
+
+/*.y {
+  display: none;
+}*/
+
+.tell-me {
+  color: gray;
+  font-size: .3em;
+  margin-top: 10em;
+}
+
+.solution {
   display: none;
 }
 
-@keyframes a { to { stroke-dashoffset: 0px } }
+.clicker:focus + .solution {
+  display:block;
+}
 
 </style>
 </head>
-<<<<<<< HEAD
 <<<<<<< HEAD
 <body>
 
@@ -138,8 +178,6 @@ function makeCorsRequest() {
 xBox.focus();
 </script>
 =======
-=======
->>>>>>> parent of 76ebf3f... blah
   <body>
     <form onsubmit="makeCorsRequest()">
     <input type="text" id="x"><br/>
@@ -172,32 +210,17 @@ xBox.focus();
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
-<<<<<<< HEAD
     function makeCorsRequest() {
       event.preventDefault();
       document.getElementById("y").innerHTML = "";
       document.getElementById("spinner").style.display = "block";
-=======
-    function showLoader() {
-      document.getElementById("spinner").style.display = "block";
-    }
-
-    function makeCorsRequest() {
-      event.preventDefault();
-      document.getElementById("y").innerHTML = "";
-      var loaderTimer = setTimeout(showLoader, 200);
->>>>>>> parent of 76ebf3f... blah
       var x = document.getElementById('x').value;
       {% if site.GH_ENV == 'gh_pages' %}
         var url = 'https://guess-the-algorithm.herokuapp.com';
       {% else %}
         var url = 'http://localhost:5000';
       {% endif %}
-<<<<<<< HEAD
       url += '/{{page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
-=======
-      url += '/{{ page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
->>>>>>> parent of 76ebf3f... blah
       var xhr = createCORSRequest('GET', url);
       if (!xhr) {
         alert('CORS not supported');
@@ -205,10 +228,6 @@ xBox.focus();
       }
 
       xhr.onload = function() {
-<<<<<<< HEAD
-=======
-        clearTimeout(loaderTimer);
->>>>>>> parent of 76ebf3f... blah
         document.getElementById("spinner").style.display = "none";
         var response = xhr.responseText;
         data = JSON.parse(response);
@@ -217,28 +236,16 @@ xBox.focus();
       };
 
       xhr.onerror = function() {
-<<<<<<< HEAD
         console.log('youtube stats update failed.');
       };
 
       xhr.send();
-=======
-        console.log('fail');
-      };
-
-      xhr.send();
-
-      document.getElementById("x").focus().select();
-      // document.getElementById("x").select();
->>>>>>> parent of 76ebf3f... blah
     }
 
     document.getElementById("x").focus();
     </script>
   </body>
-<<<<<<< HEAD
 >>>>>>> parent of 79fbc8d... Update gta.md
-=======
->>>>>>> parent of 76ebf3f... blah
 
+</body>
 </html>
