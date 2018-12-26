@@ -78,17 +78,21 @@ use {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
+    function showLoader() {
+      document.getElementById("spinner").style.display = "block";
+    }
+
     function makeCorsRequest() {
       event.preventDefault();
       document.getElementById("y").innerHTML = "";
-      document.getElementById("spinner").style.display = "block";
+      var loaderTimer = setTimeout(showLoader, 200);
       var x = document.getElementById('x').value;
       {% if site.GH_ENV == 'gh_pages' %}
         var url = 'https://guess-the-algorithm.herokuapp.com';
       {% else %}
         var url = 'http://localhost:5000';
       {% endif %}
-      url += '/{{page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
+      url += '/{{ page.alg-number }}/?x='+x+'&session='+data.session+'&iv='+data.iv;
       var xhr = createCORSRequest('GET', url);
       if (!xhr) {
         alert('CORS not supported');
@@ -96,6 +100,7 @@ use {
       }
 
       xhr.onload = function() {
+        clearTimeout(loaderTimer);
         document.getElementById("spinner").style.display = "none";
         var response = xhr.responseText;
         data = JSON.parse(response);
@@ -104,10 +109,13 @@ use {
       };
 
       xhr.onerror = function() {
-        console.log('youtube stats update failed.');
+        console.log('fail');
       };
 
       xhr.send();
+
+      document.getElementById("x").focus().select();
+      // document.getElementById("x").select();
     }
 
     document.getElementById("x").focus();
