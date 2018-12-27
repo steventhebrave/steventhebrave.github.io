@@ -27,7 +27,7 @@ body {
   box-sizing: inherit;
 }
 
-button, input {
+input {
    width: 200px;
    text-align: center;
    border-radius: .2em;
@@ -44,7 +44,7 @@ input:focus {
   outline: 0;
 }
 
-button {
+input[type=submit] {
    margin: .3em 0;
    padding: .3em .9em;
    background: #0074d9;
@@ -86,7 +86,7 @@ use {
 
 <form onsubmit="makeCorsRequest()">
 <input type="text" id="x" autocomplete="off"><br/>
-<button onclick="makeCorsRequest()">⇩</button><br/>
+<input type="submit" value="⇩"><br>
 <svg id="spinner" viewBox="-2000 -1000 4000 2000">
   <path id="inf" d="M354-354A500 500 0 1 1 354 354L-354-354A500 500 0 1 0-354 354z"></path>
   <use xlink:href="#inf" stroke-dasharray="1570 5143" stroke-dashoffset="6713px"></use>
