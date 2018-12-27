@@ -85,7 +85,7 @@ use {
 <body>
 
 <form onsubmit="makeCorsRequest()">
-<input type="text" id="x" autocomplete="off"><br/>
+<input type="tel" id="x" autocomplete="off"><br/>
 <input type="submit" value="⇩"><br>
 <svg id="spinner" viewBox="-2000 -1000 4000 2000">
   <path id="inf" d="M354-354A500 500 0 1 1 354 354L-354-354A500 500 0 1 0-354 354z"></path>
