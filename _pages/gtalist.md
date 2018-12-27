@@ -16,29 +16,16 @@ body {
   text-align: center;
   font-size: 2em;
   padding: 2em;
-  line-height: 1.5;
   font-family: Arial, Helvetica, sans-serif;
-  box-sizing: border-box;
-  margin: auto;
-  max-width: 600px;
-}
-
-* {
-  box-sizing: inherit;
 }
 
 
 .btn {
    width: 200px;
-   text-align: center;
    border-radius: .2em;
-   font: inherit;
-   margin: .3em 0;
    padding: .3em .9em;
    background: #0074d9;
    color: #fff;
-   border: 0;
-   cursor: pointer;
    text-decoration: none; 
 }
 .tell-me {
