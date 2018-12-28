@@ -32,11 +32,9 @@ input {
    text-align: center;
    border-radius: .2em;
    font: inherit;
-}
-
-input {
-  height: 2.1em;
-  border: 1px solid #ccc;
+   height: 2.1em;
+   border: 1px solid #ccc;
+   -webkit-appearance: none;
 }
 
 input:focus {
@@ -114,9 +112,11 @@ var xBox = document.getElementById("x");
 var yBox = document.getElementById("y");
 var spinner = document.getElementById("spinner");
 
+{% if page.solved %}
 document.getElementById("revealer").onclick = function() {
     document.getElementById("solution").style.display = "block";
 };
+{% endif %}
 
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
@@ -172,12 +172,12 @@ function makeCorsRequest() {
   };
 
   xhr.send();
-
   xBox.focus();
   xBox.select();
-}
+};
 
 xBox.focus();
+
 </script>
 </body>
 </html>
