@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /insta/
+permalink: /insta
 title: Instagram links
 ---
 
