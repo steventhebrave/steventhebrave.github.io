@@ -2,6 +2,7 @@
 
 body {
     margin:0;
+
 }
 
 .avatar {
@@ -24,9 +25,8 @@ body {
 .main-title {
     font-size: 3em;
     font-weight: 800;
-    line-height: 0;
     color: #111;
-    margin-top: 0.67em;
+    margin: 0;
      @media screen and (max-width: $on-palm) {
          font-size: 2em;
     }

@@ -1,10 +1,10 @@
 ---
 layout: page
 permalink: /insta
-title: Instagram links
+title: Instagram elaborations
 ---
 
-You probably came here from Instagram because I said "link in bio for more info" or something like that. Here it all is in chronological order.
+If you're here because you followed the link in my bio, this is what you're looking for (newest to oldest).
 
 {% assign sorted = site.insta | reverse %}
     {% for insta in sorted %}

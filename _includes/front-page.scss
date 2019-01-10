@@ -25,9 +25,8 @@ body {
 .main-title {
     font-size: 3em;
     font-weight: 800;
-    line-height: 0;
     color: #111;
-    margin-top: 0.67em;
+    margin: 0;
      @media screen and (max-width: $on-palm) {
          font-size: 2em;
     }
@@ -38,7 +37,7 @@ body {
     font-weight: 400;
     color: $grey-color;
     opacity: 0.7;
-    margin-top: 0.67em;
+    margin-top: 0;
      @media screen and (max-width: $on-palm) {
          font-size: 1.25em;
     }
