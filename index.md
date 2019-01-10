@@ -7,7 +7,6 @@ title: Steve Mould. Science videos, TV shows, stage shows and books.
 I have <span id="subs">200,000</span> subscribers and <span id="views">16,000,000</span> views on [my YouTube channel](https://www.youtube.com/stevemould). Here's a playlist of some of my favorite videos:
 
 <div class='embed-container'>
-	<img style="display: none;" src="/images/youtube-poster-laser.jpg" alt="">
 	<iframe width="560" height="315" src='https://www.youtube-nocookie.com/embed/videoseries?list=PLcqX4UMXNKEfOtUdeSVeVHNayUofvk6Vy' allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 

@@ -49,3 +49,13 @@ body {
   width: 0.7em;
   fill: white;
 }
+
+.embed-container {
+    background-image: url("/images/youtube-poster-laser.jpg");
+    background-size: cover;
+}
+
+iframe {
+    -webkit-animation: 4s ease 0s normal forwards 1 fadein;
+    animation: 4s ease 0s normal forwards 1 fadein;
+}
