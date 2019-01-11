@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /insta
+permalink: /more
 title: Instagram elaborations
 ---
 
