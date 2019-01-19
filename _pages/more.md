@@ -1,10 +1,10 @@
 ---
 layout: page
 permalink: /more
-title: Instagram elaborations
+title: "link in the bio"
 ---
 
-If you're here because you followed the link in my bio, this is what you're looking for (newest to oldest).
+If you're here because you followed the link in my instagram bio, this is what you're looking for (newest to oldest).
 
 {% assign sorted = site.insta | reverse %}
     {% for insta in sorted %}
