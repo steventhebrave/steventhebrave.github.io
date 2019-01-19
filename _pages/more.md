@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /more
-title: "link in the bio"
+title: '"link in the bio"'
 ---
 
 If you're here because you followed the link in my instagram bio, this is what you're looking for (newest to oldest).
