@@ -20,6 +20,8 @@
 
 var buses = [];
 var time = "time";
+var url = "https://api.tfl.gov.uk/StopPoint/490013452N/arrivals"
+// var url = 'http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?StopCode52807=t&ReturnList=EstimatedTime';
 
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
@@ -35,7 +37,6 @@ function createCORSRequest(method, url) {
 }
 
 function makeCorsRequest() {
-  var url = 'http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?StopCode1=52807&ReturnList=EstimatedTime';
 
   var xhr = createCORSRequest('GET', url);
   if (!xhr) {
@@ -44,21 +45,15 @@ function makeCorsRequest() {
   }
 
   xhr.onload = function() {
-    tflLines = xhr.responseText.replace(/\s+/g, ",");
-	console.log(tflLines);
-	tflLines = JSON.parse("[" + tflLines + "]");
-	tflTime = tflLines[0][2];
-	tflDate = new Date(tflTime);
-	tflLines.shift();
-	for (var i = 0; i < tflLines.length; i++) {
-		var busDate = new Date(tflLines[i][1]);
-		var timeString = busDate.toTimeString().substring(0, 8);
-		var busWait = new Date(tflLines[i][1] - tflTime);
-		var waitString = busWait.toTimeString().substring(3, 8);
-		document.getElementById("time").innerHTML = waitString;
-		responsiveVoice.speak(waitString);
-	}
-  };
+  	var responseJSON = JSON.parse(xhr.responseText);
+  	var allSeconds = responseJSON[0].timeToStation;
+  	var minutes = Math.floor(allSeconds / 60);
+  	var seconds = allSeconds - minutes * 60 + "";
+  	while (seconds.length < 2) {seconds = "0" + seconds;}
+  	time = minutes + ":" + seconds;
+		document.getElementById("time").innerHTML = time;
+		responsiveVoice.speak(time);
+};
 
   xhr.onerror = function() {
     time = "error";
