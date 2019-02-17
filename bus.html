@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>bus</title>
+	<meta name="viewport" content="width=device-width">
+	<style type="text/css">
+		body {
+			font-family: sans-serif;
+		}
+		#time {
+			font-size: 40px;
+			text-align: center;
+		}
+	</style>
+	<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+</head>
+<body>
+	<p id="time"></p>
+<script type="text/javascript">
+
+var buses = [];
+var time = "time";
+
+function createCORSRequest(method, url) {
+  var xhr = new XMLHttpRequest();
+  if ("withCredentials" in xhr) {
+    xhr.open(method, url, true);
+  } else if (typeof XDomainRequest != "undefined") {
+    xhr = new XDomainRequest();
+    xhr.open(method, url);
+  } else {
+    xhr = null;
+  }
+  return xhr;
+}
+
+function makeCorsRequest() {
+  var url = 'http://countdown.api.tfl.gov.uk/interfaces/ura/instant_V1?StopCode1=52807&ReturnList=EstimatedTime';
+
+  var xhr = createCORSRequest('GET', url);
+  if (!xhr) {
+    alert('CORS not supported');
+    return;
+  }
+
+  xhr.onload = function() {
+    tflLines = xhr.responseText.replace(/\s+/g, ",");
+	console.log(tflLines);
+	tflLines = JSON.parse("[" + tflLines + "]");
+	tflTime = tflLines[0][2];
+	tflDate = new Date(tflTime);
+	tflLines.shift();
+	for (var i = 0; i < tflLines.length; i++) {
+		var busDate = new Date(tflLines[i][1]);
+		var timeString = busDate.toTimeString().substring(0, 8);
+		var busWait = new Date(tflLines[i][1] - tflTime);
+		var waitString = busWait.toTimeString().substring(3, 8);
+		document.getElementById("time").innerHTML = waitString;
+		responsiveVoice.speak(waitString);
+	}
+  };
+
+  xhr.onerror = function() {
+    time = "error";
+  };
+
+  xhr.send();
+}
+
+var intervalID = window.setInterval(makeCorsRequest, 10000);
+makeCorsRequest();
+
+</script>
+</body>
+</html>
