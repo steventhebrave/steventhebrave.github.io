@@ -14,18 +14,15 @@
 </head>
 <body>
 	<div id="time"></div>
-	<audio controls loop>
+	<audio controls autoplay loop>
 	  <source src="silence.mp3" type="audio/mpeg">
-	  Your browser does not support the audio element.
 	</audio>
 
 
 <script type="text/javascript">
 
-var buses = [];
-var times = [];
 var time = "";
-var url = "https://api.tfl.gov.uk/StopPoint/490013452N/arrivals"
+const url = "https://api.tfl.gov.uk/StopPoint/490013452N/arrivals"
 var secondsLast = 0;
 
 function createCORSRequest(method, url) {
@@ -63,9 +60,7 @@ function makeCorsRequest() {
 
   xhr.onload = function() {
   	var responseJSON = JSON.parse(xhr.responseText);
-  	console.log(responseJSON);
   	responseJSON.sort(compare);
-  	console.log(responseJSON);
   	document.getElementById("time").innerHTML = "";
   	for (var i = 0; i < responseJSON.length; i++) {
   		var seconds = responseJSON[i].timeToStation;
