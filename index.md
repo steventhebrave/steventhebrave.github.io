@@ -28,11 +28,11 @@ You'll also find me performing science comedy shows with [Helen Arney](http://he
 
 ## ✒️ Books
 
-I've written 3 books for kids: [How To Be A Scientist](https://amzn.to/2Dd0ejn), [The Bacteria Book](https://amzn.to/2yFuort) and [Science is Magic](https://amzn.to/2OVDjzg).
+I've written 3 books for kids: [How To Be A Scientist](/books), [The Bacteria Book](/books) and [Science is Magic](/books).
 
 [{% include img.html image="all3small.jpg" ratio="56.25" alt="Kids books by Steve Mould" %}](https://amzn.to/2Oav7Gh)
 
-And I've written a book for adults with [Helen Arney](http://helenarney.com/) called [The Element In The Room](https://amzn.to/2yGRbmM).
+And I've written a book for adults with [Helen Arney](http://helenarney.com/) called [The Element In The Room](/books).
 
 [{% include img.html image="teitr.png" ratio="56.25" alt="The Element In The Room book" %}](https://amzn.to/2Oav7Gh)
 
@@ -45,8 +45,6 @@ I set up an online shop called [Maths Gear](https://mathsgear.co.uk) with Matt P
 ## 📢 Get in touch 
 
 Any questions of comments, [get in touch](/contact).
-
-<!-- test -->
 
 ## ✉️ Subscribe to the mailing list
 

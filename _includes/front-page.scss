@@ -22,16 +22,6 @@ body {
     font-weight: normal;
 }
 
-.main-title {
-    font-size: 3em;
-    font-weight: 800;
-    color: #111;
-    margin: 0;
-     @media screen and (max-width: $on-palm) {
-         font-size: 2em;
-    }
-}
-
 .tagline {
     font-size: 1.5em;
     font-weight: 400;

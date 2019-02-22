@@ -260,11 +260,24 @@ picture img {
     border-radius: 2px;
     border: none;
     padding: 10px 15px;
+    text-decoration: none;
+    font-size: 0.7em;
     &:hover{
         color: #fff;
         background-color: $h-color;
     }
 }
+
+.main-title {
+    font-size: 3em;
+    font-weight: 800;
+    color: #111;
+    margin: 0;
+     @media screen and (max-width: $on-palm) {
+         font-size: 2em;
+    }
+}
+
 
 #mc_embed_signup{
     background:#fff; 
