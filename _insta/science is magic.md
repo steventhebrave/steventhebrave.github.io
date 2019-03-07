@@ -2,7 +2,7 @@
 title: Science is Magic is OUT NOW!
 date: 2019-03-07
 ---
-{% include img.html image="sism.jpg" ratio="50" alt="science is magic" %}
+{% include img.html image="sism.jpg" ratio="100" alt="science is magic" %}
 
 You can buy Science is Magic from these places:
 
