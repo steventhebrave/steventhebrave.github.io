@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+  <body>
+    <p id="stats"></p>
+
+    <script>
+
+    function createCORSRequest(method, url) {
+      var xhr = new XMLHttpRequest();
+      if ("withCredentials" in xhr) {
+        xhr.open(method, url, true);
+      } else if (typeof XDomainRequest != "undefined") {
+        xhr = new XDomainRequest();
+        xhr.open(method, url);
+      } else {
+        xhr = null;
+      }
+      return xhr;
+    }
+
+    function addCommas(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function makeCorsRequest() {
+      var url = 'https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UCEIwxahdLz7bap-VDs9h35A&key=AIzaSyAuhQg04Ez9biRoVGEUZ9MCwgpF0dmy4xM';
+
+      var xhr = createCORSRequest('GET', url);
+      if (!xhr) {
+        alert('CORS not supported');
+        return;
+      }
+
+      xhr.onload = function() {
+        var response = xhr.responseText;
+        var data = JSON.parse(response);
+        var statistics = data.items[0].statistics;
+        var cleanStats = {"subscribers":addCommas(statistics.subscriberCount)};
+        cleanStats.views = addCommas(statistics.viewCount);
+        document.getElementById("stats").innerHTML=JSON.stringify(cleanStats);
+        console.log(cleanStats);
+      };
+
+      xhr.onerror = function() {
+        console.log('youtube stats update failed.');
+      };
+
+      xhr.send();
+    }
+
+    makeCorsRequest();
+    </script>
+
+  </body>
+
+</html>
+
+
+
