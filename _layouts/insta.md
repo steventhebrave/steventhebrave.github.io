@@ -1,6 +1,6 @@
 ---
 layout: page
-perpage: 5
+perpage: 8
 ---
 
 {% assign sorted = site.insta | reverse %}
