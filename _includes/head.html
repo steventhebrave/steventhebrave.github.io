@@ -13,7 +13,7 @@
           {% endcapture %}
           {{ include_to_scssify | scssify }}
 
-          {% if page.layout == 'page' %}
+          {% if page.layout == 'page' or page.layout == 'insta' %}
             {% capture include_to_scssify %}
             {% include page.scss %}
             {% endcapture %}

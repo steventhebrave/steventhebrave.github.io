@@ -33,3 +33,22 @@ nav a {
 nav a img {
 	margin-left: -50%;
 }
+
+.pagination {
+    margin: 2em 0;
+    text-align: center
+}
+.pagination a:hover {
+    background-color: #f1f1f1;
+    color: #333
+}
+.pagination a,
+.pagination span {
+    padding: 7px 18px;
+    border: 1px solid #eee;
+    margin-left: -4px;
+    margin-right: -4px;
+    background-color: #ffffff;
+    display: inline-block;
+    text-decoration: none
+}
