@@ -2,6 +2,7 @@
 layout: page
 perpage: 8
 ---
+{{ content }}
 
 {% assign sorted = site.insta | reverse %}
     {% for insta in sorted %}
