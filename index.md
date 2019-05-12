@@ -2,7 +2,7 @@
 layout: front-page
 title: Steve Mould. Science videos, TV shows, stage shows and books.
 ---
-<h2><svg style="width:1em;" version="1.1" id="YouTube_Icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
+<h2><a href="https://www.youtube.com/stevemould"><svg style="width:1em;" version="1.1" id="YouTube_Icon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
 	 y="0px" viewBox="0 0 1024 721" enable-background="new 0 0 1024 721" xml:space="preserve">
 <path id="Triangle" fill="#FFFFFF" d="M407,493l276-143L407,206V493z"/>
 <path id="The_Sharpness" opacity="0.12" fill="#420000" enable-background="new    " d="M407,206l242,161.6l34-17.6L407,206z"/>
@@ -19,7 +19,7 @@ title: Steve Mould. Science videos, TV shows, stage shows and books.
 			C1023.2,238.9,1013,156.3,1013,156.3z M407,493V206l276,144L407,493z"/>
 	</g>
 </g>
-</svg> YouTube </h2>
+</svg> YouTube</a></h2>
 
 I have <span id="subs">280,000</span> subscribers and <span id="views">21,000,000</span> views on [my YouTube channel](https://www.youtube.com/stevemould). Here's a playlist of some of my favorite videos:
 
