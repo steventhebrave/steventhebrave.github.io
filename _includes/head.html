@@ -6,6 +6,8 @@
  
   {% seo %}
 
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
+  
   <style>
           {% capture include_to_scssify %}
           {% include main.scss %}
@@ -13,4 +15,3 @@
           {{ include_to_scssify | scssify }}
   </style>
  
-  <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
