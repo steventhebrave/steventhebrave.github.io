@@ -1,4 +1,3 @@
-<head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,21 +11,6 @@
           {% include main.scss %}
           {% endcapture %}
           {{ include_to_scssify | scssify }}
-
-          {% if page.layout == 'page' or page.layout == 'insta' %}
-            {% capture include_to_scssify %}
-            {% include page.scss %}
-            {% endcapture %}
-            {{ include_to_scssify | scssify }}
-          {% endif %}
-          {% if page.layout == 'front-page' %}
-            {% capture include_to_scssify %}
-            {% include front-page.scss %}
-            {% endcapture %}
-            {{ include_to_scssify | scssify }}
-          {% endif %}
   </style>
  
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
-
-</head>

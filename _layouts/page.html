@@ -5,7 +5,16 @@ layout: compress
 <!DOCTYPE html>
 <html>
 
+  <head>
+
   {% include head.html %}
+<style>
+  {% capture include_to_scssify %}
+  {% include page.scss %}
+  {% endcapture %}
+  {{ include_to_scssify | scssify }}
+</style>
+  </head>
 
   <body>
 
