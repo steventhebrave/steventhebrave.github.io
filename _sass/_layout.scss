@@ -16,7 +16,7 @@ html {
  font-size: $base-font-size;
 }
 
-h2 a {
+.post-content h2 a {
     text-decoration: none;
     color: inherit;
     &:hover {
