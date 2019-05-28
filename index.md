@@ -21,7 +21,7 @@ title: Steve Mould. Science videos, TV shows, stage shows and books.
 </g>
 </svg> YouTube</a></h2>
 
-I have <span id="subs">280,000</span> subscribers and <span id="views">21,000,000</span> views on [my YouTube channel](https://www.youtube.com/stevemould). Here's a playlist of some of my favorite videos:
+I have <span id="subs">{% include youtubesubs.html %}</span> subscribers and <span id="views">{% include youtubeviews.html %}</span> views on [my YouTube channel](https://www.youtube.com/stevemould). Here's a playlist of some of my favorite videos:
 
 <div class='embed-container'>
 	<iframe width="560" height="315" src='https://www.youtube-nocookie.com/embed/videoseries?list=PLcqX4UMXNKEfOtUdeSVeVHNayUofvk6Vy' allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
