@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: stevemould.com
+Token: 29452c931a151ed62fc23853686a58a6e94c3751695da2620486d86f41ff7248
