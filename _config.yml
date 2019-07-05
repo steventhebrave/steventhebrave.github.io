@@ -22,8 +22,8 @@ highlighter: rouge
 sass:
  style: compressed
   
-include: [_pages]
-include: [.well-known]
+include: [_pages, .well-known]
+# include: [.well-known]
 
 collections:
   - insta
