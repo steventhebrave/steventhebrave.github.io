@@ -22,7 +22,7 @@ highlighter: rouge
 sass:
  style: compressed
   
-include: [_pages, .well-known]
+include: [_pages, .well-known, files]
 # include: [.well-known]
 
 collections:
