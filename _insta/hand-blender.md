@@ -1,5 +1,5 @@
 ---
-title: Credit card screw explaination
+title: Credit card bolt explaination
 date: 2019-08-05
 ---
 
