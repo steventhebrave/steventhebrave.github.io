@@ -1,5 +1,8 @@
 ---
-title: Hand blender levitation - Full video
-date: 2019-07-25
-yt: TrZyuCh9df0
+title: Credit card screw explaination
+date: 2019-08-05
 ---
+
+{% include img.html image="screw.jpg" ratio="56.25" %}
+
+IT'S A TRIIIIIICK! Sorry. hope you don't mind. Can you figure out how it's done?
