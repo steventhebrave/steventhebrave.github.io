@@ -19,6 +19,8 @@ perpage: 8
   <p>{{ insta.content | markdownify }}</p>
   	{% endif %}
 
+{% if forloop.index == 1 %}<h1 style="border-bottom: 1px solid #e8e8e8;">Older posts</h1>{% endif %}
+
 {% endfor %}
 
 {% assign howmanypages = site.insta.size | plus: layout.perpage | minus: 1 | divided_by: layout.perpage %}
