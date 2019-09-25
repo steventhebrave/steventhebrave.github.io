@@ -33,6 +33,8 @@ You can support my YouTube efforts [on Patreon](https://www.patreon.com/stevemou
 
 I perform shows and give talks on maths and science for kids and adults.
 
+{% include img.html image="live.jpg" ratio="56.25" alt="The Mould Effect Bead Chain fountain live shows" %}
+
 > "I worked with Steve on a large awards event. Steve engaged with the audience perfectly, delivered a continuously high level of energy, enthused the audience and did it all with a great sense of humour."
 
 > "A brilliant presentation, easy to follow and understand and very engaging but really quite original."
