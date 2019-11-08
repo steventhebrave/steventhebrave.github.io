@@ -77,7 +77,7 @@ layout: compress
         var data = JSON.parse(response);
         var statistics = data.items[0].statistics;
         document.getElementById("subs").innerHTML=addCommas(statistics.subscriberCount);
-        document.getElementById("views").innerHTML=addCommas(statistics.viewCount);
+        document.getElementById("views").innerHTML=addCommas(Math.floor(statistics.viewCount/1000000)*1000000);
       };
 
       xhr.onerror = function() {
