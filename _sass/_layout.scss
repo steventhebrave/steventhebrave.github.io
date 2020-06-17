@@ -270,6 +270,8 @@ picture img {
     padding: 10px 15px;
     text-decoration: none;
     font-size: 1em;
+    display: inline-block;
+    margin-bottom: 6px;
     &:hover{
         color: #fff;
         background-color: $h-color;
