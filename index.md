@@ -27,7 +27,10 @@ I have <span id="subs">{% include youtubesubs.html %}</span> subscribers and <sp
 	<iframe width="560" height="315" src='https://www.youtube-nocookie.com/embed/videoseries?list=PLcqX4UMXNKEfOtUdeSVeVHNayUofvk6Vy' allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 </div>
 
-You can support my YouTube efforts [on Patreon](https://www.patreon.com/stevemould).
+You can support my YouTube efforts on Patreon:
+
+[<svg viewBox="0 0 569 546" class="icon" xmlns="http://www.w3.org/2000/svg"><g><circle cx="362.589996" cy="204.589996" data-fill="1" id="Oval" r="204.589996"></circle><rect data-fill="2" height="545.799988" id="Rectangle" width="100" x="0" y="0"></rect></g></svg> Become a patron](https://www.patreon.com/bePatron?u=8826942){:.jumbo-button .patreon}
+{: style="text-align: center;"}
 
 ## 🎤 Stage shows
 
@@ -67,6 +70,6 @@ Any questions or comments, [get in touch](/contact).
 
 ## ✉️ Subscribe to the mailing list
 
-I've never actually sent an email to this list. But at some point I might use it to send an update about what I'm up to..
+I've never actually sent an email to this list. But at some point I might use it to send an update about what I'm up to. Your name and email will be stored securely at mailchimp.com in compliance with all current data protection regulations. Their privacy policy can be found [here](https://mailchimp.com/legal/privacy/#3._Privacy_for_Contacts). I will only ever use your data to send you emails. I will never pass it onto anyone else, and you can unsubscribe any time.
 
 {% include signup.html %}
