@@ -67,6 +67,6 @@ Any questions or comments, [get in touch](/contact).
 
 ## ✉️ Subscribe to the mailing list
 
-I've never actually sent an email to this list. But at some point I might use it to send an update about what I'm up to.
+I've never actually sent an email to this list. But at some point I might use it to send an update about what I'm up to..
 
 {% include signup.html %}
