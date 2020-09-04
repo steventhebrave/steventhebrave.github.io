@@ -11,9 +11,9 @@ title: Buy my books here
 {: style="text-align: center;"}
 
 {% include img.html image="languages.jpg" ratio="93.75" alt="Kids books by Steve Mould" %}
-My books are available in lots of other languages like German, Korean, Madarin, Spanish and Italian so search for my name wherever you buy your books locally.
+My books are available in lots of other languages like German, Korean, Mandarin, Spanish and Italian so search for my name wherever you buy your books locally
 
-Clever Creautres is the Amercian Elnglish version of Wild Scienitsts.
+Clever Creatures is the American English version of Wild Scientists  
 ## Books for adults
 {: style="text-align: center;"}
 {% include img.html image="teitr.png" ratio="56.25" alt="The Element In The Room book" %}
