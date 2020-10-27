@@ -13,7 +13,7 @@ perpage: 8
   <h2>{{ insta.title }}</h2>
     {% if insta.yt %}
   <div class='embed-container'>
-    <iframe width="560" height="315" src='https://www.youtube.com/embed/{{ insta.yt }}' allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <iframe width="560" height="315" src='https://www.youtube-nocookie.com/embed/{{ insta.yt }}' allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
   </div>
   {% endif %}
   <p>{{ insta.content | markdownify }}</p>
