@@ -50,9 +50,9 @@ You'll also find me performing science comedy shows with [Helen Arney](http://he
 
 ## ✒️ Books
 
-I've written 3 books for kids: [How To Be A Scientist](/books), [The Bacteria Book](/books) and [Science is Magic](/books).
+I've written 4 books for kids: [How To Be A Scientist](/books), [The Bacteria Book](/books), [Science is Magic](/books) and [Wild Scientists](/books) (called Clever Creatures in the US).
 
-[{% include img.html image="all3small.jpg" ratio="56.25" alt="Kids books by Steve Mould" %}](https://amzn.to/2Oav7Gh)
+[{% include img.html image="all4small.jpg" ratio="42" alt="Kids books by Steve Mould" %}](https://amzn.to/2Oav7Gh)
 
 And I've written a book for adults with [Helen Arney](http://helenarney.com/) called [The Element In The Room](/books).
 
