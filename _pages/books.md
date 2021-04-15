@@ -6,7 +6,7 @@ title: Buy my books here
 ## Books for kids
 {: style="text-align: center;"}
 {% include img.html image="all4small.jpg" ratio="42" alt="Kids books by Steve Mould" %}
-[Amazon UK](https://amzn.to/2E13qwu){:.jumbo-button} [Amazon US](https://amzn.to/2NlMbKB){:.jumbo-button}
+[Amazon UK](https://amzn.to/32j4lF0){:.jumbo-button} [Amazon US](https://amzn.to/2NlMbKB){:.jumbo-button}
 [Hive (UK)](https://www.hive.co.uk/Search/Childrens?Author=Steve+Mould&fq=-121488){:.jumbo-button}
 {: style="text-align: center;"}
 
@@ -17,6 +17,6 @@ Clever Creatures is the American English version of Wild Scientists.
 ## Books for adults
 {: style="text-align: center;"}
 {% include img.html image="teitr.png" ratio="56.25" alt="The Element In The Room book" %}
-[Amazon UK](https://amzn.to/2E13qwu){:.jumbo-button} [Amazon US](https://amzn.to/2NlMbKB){:.jumbo-button}
+[Amazon UK](https://amzn.to/32j4lF0){:.jumbo-button} [Amazon US](https://amzn.to/2NlMbKB){:.jumbo-button}
 [Hive (UK)](https://www.hive.co.uk/Search/Humour?Author=Steve+Mould&fq=-122257){:.jumbo-button}
 {: style="text-align: center;"}
