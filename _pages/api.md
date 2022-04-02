@@ -2,4 +2,4 @@
 layout: api
 permalink: /api/
 ---
-sdfdss
+{% include apidata.html %}
