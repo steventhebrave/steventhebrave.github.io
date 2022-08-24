@@ -5,7 +5,7 @@ title: How to get in touch
 ---
 
 ## For YouTube sponsorships and brand deals…
-Contact Lighthouse Agents on email [ben@lighthouseagents.com](mailto:ben@lighthouseagents.com) 
+Contact Lighthouse Agents on email [SteveMould@lighthouseagents.com](mailto:SteveMould@lighthouseagents.com) 
 
 ## For TV and radio…
 Contact Sophieclaire Armitage at Noel Gay on {% include phone.html number="20 7836 3941" %} or email [SArmitage@noelgay.com](mailto:SArmitage@noelgay.com).
