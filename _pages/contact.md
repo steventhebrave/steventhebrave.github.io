@@ -20,7 +20,7 @@ Contact Anna Power at Johnson & Alcock on {% include phone.html number="20 7251 
 Contact Ziggurat [stevemould@zigguratxyz.com](mailto:stevemould@zigguratxyz.com).
 
 ## And for everything else
-You can find me on twitter [@moulds](https://twitter.com/moulds), [instagram](https://www.instagram.com/stevemouldscience/) and [facebook](https://www.facebook.com/stevemouldscience/) or email me at [steve@stevemould.com](mailto:steve@stevemould.com).
+You can find me on [twitter](https://twitter.com/moulds), [instagram](https://www.instagram.com/stevemouldscience/) and [facebook](https://www.facebook.com/stevemouldscience/) or email me at [steve@stevemould.com](mailto:steve@stevemould.com).
 
 ## You can also subscribe to my mailing list
 
