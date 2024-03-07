@@ -1,7 +1,7 @@
 ---
 layout: page
 permalink: /atomix/
-title: So you want to make an crystal lattice model
+title: So you want to make a crystal lattice model
 ---
 You're probably here because you asked me how I made the crystal lattice modal thing.
 
