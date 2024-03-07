@@ -17,5 +17,5 @@ The whole thing is held together with nuts and bolts in the corners. But you cou
 
 Here are the files I sent to the laser cutter: 
 
-[Front and back](/files/front-and-back.ai)
-[Middle](/files/middle.ai)
+-[Front and back](/files/front-and-back.ai) 
+-[Middle](/files/middle.ai)
