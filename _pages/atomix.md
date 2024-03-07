@@ -13,7 +13,7 @@ The resulting cavity is filled with about 3000 2mm ball bearings. The middle she
 
 I used 5mm acrylic for the front and back but that was too thin as the whole think flexes way more than I would like. I don't know the best thickness but I would guess that 10mm would be fine.
 
-The whole think is held together with nuts and bolts in the corners. But you could use acrylic weld.
+The whole thing is held together with nuts and bolts in the corners. But you could use acrylic weld.
 
 Here are the files I sent to the laser cutter: 
 
