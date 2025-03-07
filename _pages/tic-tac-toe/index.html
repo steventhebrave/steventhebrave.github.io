@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe (Toroidal)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .board-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(9, 100px);
+            grid-template-rows: repeat(9, 100px);
+            gap: 5px;
+            position: relative;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border: 2px solid black;
+            cursor: pointer;
+            background-color: white;
+        }
+        .cell.taken {
+            cursor: not-allowed;
+        }
+        .mirror {
+            opacity: 0.3;
+            background-color: lightgray;
+        }
+        .main-board {
+            background-color: lightblue;
+            border: 3px solid darkblue;
+        }
+        .hidden-board .cell {
+            background-color: white !important;
+            border: 2px solid black !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic Tac Toe (Toroidal)</h1>
+    <div class="board-container">
+        <div class="board" id="board"></div>
+    </div>
+    <p id="status">Player X's turn</p>
+    <button onclick="resetGame()">Reset Game</button>
+    <button onclick="toggleHighlight()">Toggle Highlight</button>
+
+    <script>
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let highlightEnabled = true;
+
+        function checkWinner() {
+            const winningCombos = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6],
+                [1, 5, 6], [2, 3, 7], [0, 5, 7], [1, 3, 8]
+            ];
+            
+            for (const combo of winningCombos) {
+                const values = combo.map(i => board[i]);
+                if (values.every(v => v && v === values[0])) {
+                    document.getElementById('status').innerText = `Player ${values[0]} wins!`;
+                    gameActive = false;
+                    return;
+                }
+            }
+            if (!board.includes('')) {
+                document.getElementById('status').innerText = "It's a draw!";
+                gameActive = false;
+            }
+        }
+
+        function handleClick(index) {
+            if (board[index] || !gameActive) return;
+            board[index] = currentPlayer;
+            renderBoard();
+            checkWinner();
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            if (gameActive) {
+                document.getElementById('status').innerText = `Player ${currentPlayer}'s turn`;
+            }
+        }
+
+        function renderBoard() {
+            const boardDiv = document.getElementById('board');
+            boardDiv.innerHTML = '';
+            boardDiv.classList.toggle('hidden-board', !highlightEnabled);
+            for (let i = -3; i <= 5; i++) {
+                for (let j = -3; j <= 5; j++) {
+                    let row = (i + 3) % 3;
+                    let col = (j + 3) % 3;
+                    let index = row * 3 + col;
+                    const cellDiv = document.createElement('div');
+                    cellDiv.classList.add('cell');
+                    if (highlightEnabled) {
+                        if (i >= 0 && i <= 2 && j >= 0 && j <= 2) {
+                            cellDiv.classList.add('main-board');
+                        } else {
+                            cellDiv.classList.add('mirror');
+                        }
+                    }
+                    cellDiv.onclick = () => handleClick(index);
+                    cellDiv.innerText = board[index];
+                    boardDiv.appendChild(cellDiv);
+                }
+            }
+        }
+
+        function toggleHighlight() {
+            highlightEnabled = !highlightEnabled;
+            renderBoard();
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.getElementById('status').innerText = "Player X's turn";
+            renderBoard();
+        }
+
+        renderBoard();
+    </script>
+</body>
+</html>
