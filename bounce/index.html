@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1D Mass-Spring Simulation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
+      --border: #30363d; --text: #c9d1d9; --dim: #8b949e;
+      --blue: #58a6ff; --green: #56d364; --red: #ff7b72;
+      --blue-dark: #1f6feb; --red-dark: #da3633;
+    }
+    body {
+      font-family: -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 24px 20px; gap: 14px;
+    }
+    h1 { font-size: 1.15rem; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+    #sim-wrap {
+      width: 90vw;
+      /* background: var(--surface); */
+      /* border: 1px solid var(--border); border-radius: 10px; overflow: hidden; */
+    }
+    canvas { display: block; width: 100%; }
+    #status {
+      display: flex; justify-content: space-between; align-items: center;
+      /* display: none;  hidden by default, shown when sweep is running */
+      padding: 7px 14px; background: var(--surface2);
+      border-top: 1px solid var(--border);
+      font-size: 0.75rem; font-family: 'Courier New', monospace; color: var(--dim);
+      flex-wrap: wrap; gap: 4px;
+    }
+    #controls {
+      width: 90vw; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px; padding: 18px;
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px; margin-bottom: 14px;
+    }
+    .box-row { display: flex; gap: 16px; margin-bottom: 14px; align-items: stretch; flex-wrap: wrap; }
+    .sys-box {
+      flex: 1; min-width: 240px; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px;
+    }
+    .sys-box-title {
+      font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .sys-box .grid { grid-template-columns: 1fr; margin-bottom: 0; gap: 12px; }
+    .param { display: flex; flex-direction: column; gap: 4px; }
+    .param-label { font-size: 0.75rem; color: var(--dim); }
+    .param-label b { color: var(--text); }
+    .param-row { display: flex; align-items: center; gap: 8px; }
+    input[type="range"] { flex: 1; accent-color: var(--blue); cursor: pointer; height: 4px; }
+    input[type="number"] {
+      width: 72px; padding: 4px 7px; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text); font-size: 0.82rem; text-align: right; outline: none;
+    }
+    input[type="number"]:focus { border-color: var(--blue); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+    .btn-row { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    button {
+      padding: 7px 22px; border-radius: 6px; border: 1px solid;
+      cursor: pointer; font-size: 0.88rem; font-weight: 600; transition: opacity 0.1s;
+    }
+    button:hover { opacity: 0.82; }
+    #btn-play { background: var(--blue); border-color: var(--blue); color: #0d1117; min-width: 105px; }
+    #btn-reset { background: transparent; border-color: var(--border); color: var(--text); }
+    .speed-label { font-size: 0.78rem; color: var(--dim); }
+    select {
+      background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+      padding: 5px 9px; border-radius: 5px; font-size: 0.82rem; cursor: pointer;
+    }
+    /* ── sweep panel ── */
+    #sweep-panel {
+      width: 90vw; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+    }
+    .sw-header {
+      padding: 9px 18px; background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.83rem; font-weight: 600; color: var(--text);
+    }
+    .sw-body { padding: 14px 18px; }
+    .sw-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .sw-label { font-size: 0.78rem; color: var(--dim); white-space: nowrap; }
+    .sw-row select { font-size: 0.82rem; }
+    .sw-row input[type="number"] { width: 80px; }
+    #sw-run { background: var(--green); border-color: var(--green); color: #0d1117; padding: 6px 18px; }
+    .sw-toggle {
+      padding: 3px 10px; border-radius: 4px; border: 1px solid;
+      cursor: pointer; font-size: 0.75rem; font-weight: 600;
+      background: transparent; transition: opacity 0.12s;
+    }
+    .sw-out {
+      padding: 3px 12px; border-radius: 4px; border: 1px solid var(--border);
+      cursor: pointer; font-size: 0.75rem; font-weight: 600;
+      background: transparent; color: var(--dim); transition: all 0.12s;
+    }
+    .drv-sel { padding: 1px 4px; font-size: 0.72rem; margin-left: 2px; vertical-align: middle; }
+    .param-row input:disabled { opacity: 0.4; }
+    .sw-out.active { border-color: var(--blue); background: var(--blue); color: #0d1117; }
+    #sw-results { margin-top: 14px; }
+    .sw-ctx { font-size: 0.72rem; color: var(--dim); margin-bottom: 8px; font-family: 'Courier New', monospace; }
+    table { width: auto; border-collapse: collapse; font-size: 0.82rem; font-family: 'Courier New', monospace; }
+    thead th {
+      padding: 6px 14px; background: var(--surface2); color: var(--text);
+      border-bottom: 1px solid var(--border); font-weight: 600; text-align: right;
+    }
+    thead th:first-child { text-align: left; }
+    tbody td { padding: 5px 14px; border-bottom: 1px solid #21262d; color: var(--text); text-align: right; }
+    tbody td:first-child { text-align: left; color: var(--dim); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface2); }
+  </style>
+</head>
+<body>
+  <!-- <h1>1D Mass-Spring Simulation <span style="font-size:0.5em;color:var(--dim);font-weight:400;">— WebGL build</span></h1> -->
+
+  <div id="sim-wrap">
+    <canvas id="canvas"></canvas>
+    <div id="status">
+      <span id="st-t">t = 0.000 s</span>
+      <span id="st-e">KE = 0.000 J &nbsp;|&nbsp; PE = 0.000 J &nbsp;|&nbsp; E = 0.000 J</span>
+      <span id="st-v">v₂ = 0.000  vₐ = 0.000  v_b = 0.000 m/s</span>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div style="margin-bottom:12px;">
+      <button id="btn-params" style="background:transparent;border-color:var(--border);color:var(--text);padding:5px 14px;font-size:0.82rem;font-weight:600;">▾ Parameters</button>
+    </div>
+    <div class="box-row" id="param-boxes">
+      <!-- LEFT: the moving system (displayed m₁ = internal m2/k2/L2/T2/split) -->
+      <div class="sys-box">
+        <div class="sys-box-title">m₁ — moving system
+          <select id="m2-mode" style="margin-left:auto;font-size:0.78rem;">
+            <option value="pair">pair (mₐ–mᵦ spring)</option>
+            <option value="single">single + front spring</option>
+            <option value="chain">chain of N masses</option>
+          </select>
+          <label id="nchain-wrap" style="display:none;font-size:0.78rem;">N <input type="number" id="n-chain" min="2" max="50" step="1" value="5" style="width:48px"></label>
+          <label id="single1-wrap" style="display:none;font-size:0.78rem;" title="Stop at the first release — assume only one collision"><input type="checkbox" id="single1"> 1 collision</label>
+        </div>
+        <div class="grid">
+          <div class="param">
+            <div class="param-label"><b>m₁</b> — moving pair total mass (kg)</div>
+            <div class="param-row">
+              <input type="range" id="sl-m2" min="0.1" max="10" step="0.1" value="1">
+              <input type="number" id="in-m2" value="1" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>k₁</b> — pair spring stiffness (N/m)</div>
+            <div class="param-row">
+              <input type="range" id="sl-k2" min="0.1" max="20" step="0.1" value="1">
+              <input type="number" id="in-k2" value="1" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>L₁</b> — pair spring rest length (m)</div>
+            <div class="param-row">
+              <input type="range" id="sl-L2" min="0.5" max="5" step="0.1" value="2">
+              <input type="number" id="in-L2" value="2" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>T₁</b> — pair internal period (s, via reduced mass) · driven:
+              <select id="drv-2" class="drv-sel">
+                <option value="T2">T₁</option><option value="k2">k₁</option><option value="m2">m₁</option>
+              </select>
+            </div>
+            <div class="param-row">
+              <input type="range" id="sl-T2" min="0.3" max="40" step="0.05" value="3.142">
+              <input type="number" id="in-T2" value="3.142" step="0.05">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>mB / m₁</b> — fraction of pair mass in mᵦ (log-scale slider)</div>
+            <div class="param-row">
+              <input type="range" id="sl-split" min="0" max="100000" step="1" value="50000">
+              <input type="number" id="in-split" value="0.5" step="any">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>v</b> — initial velocity of pair (m/s)</div>
+            <div class="param-row">
+              <input type="range" id="sl-v" min="0.1" max="10" step="0.1" value="1">
+              <input type="number" id="in-v" value="1" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>e</b> — mᵦ↔m₂ restitution (0=inelastic, 1=elastic)</div>
+            <div class="param-row">
+              <input type="range" id="sl-cor" min="0" max="1" step="0.01" value="0">
+              <input type="number" id="in-cor" value="0" step="0.01">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- RIGHT: the anchored system (displayed m₂ = internal m1/k1/L1/T1/b1) -->
+      <div class="sys-box">
+        <div class="sys-box-title">m₂ — anchored system</div>
+        <div class="grid">
+          <div class="param">
+            <div class="param-label"><b>m₂</b> — stationary mass (kg)</div>
+            <div class="param-row">
+              <input type="range" id="sl-m1" min="0.1" max="10" step="0.1" value="1">
+              <input type="number" id="in-m1" value="1" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>k₂</b> — anchor spring stiffness (N/m)</div>
+            <div class="param-row">
+              <input type="range" id="sl-k1" min="0.1" max="20" step="0.1" value="1">
+              <input type="number" id="in-k1" value="1" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>L₂</b> — anchor spring rest length (m)</div>
+            <div class="param-row">
+              <input type="range" id="sl-L1" min="0.5" max="5" step="0.1" value="2">
+              <input type="number" id="in-L1" value="2" step="0.1">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>T₂</b> — anchor natural period (s) · driven:
+              <select id="drv-1" class="drv-sel">
+                <option value="T1">T₂</option><option value="k1">k₂</option><option value="m1">m₂</option>
+              </select>
+              <label style="font-size:0.85em;margin-left:6px;" title="In-contact period: use k₂+k₁ instead of k₂"><input type="checkbox" id="t2-contact"> +k₁</label>
+            </div>
+            <div class="param-row">
+              <input type="range" id="sl-T1" min="0.3" max="40" step="0.05" value="6.283">
+              <input type="number" id="in-T1" value="6.283" step="0.05">
+            </div>
+          </div>
+          <div class="param">
+            <div class="param-label"><b>β₂</b> — anchor spring cubic term (0=linear, &gt;0=trampoline)</div>
+            <div class="param-row">
+              <input type="range" id="sl-b1" min="0" max="50" step="0.5" value="0">
+              <input type="number" id="in-b1" value="0" step="0.5">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="btn-row">
+      <button id="btn-play">▶ Play</button>
+      <button id="btn-reset">↺ Reset</button>
+      <span class="speed-label">dt (s):</span>
+      <input type="number" id="in-dt" value="0.0004" step="0.0001" style="width:90px">
+      <span class="speed-label">Speed:</span>
+      <select id="sel-speed">
+        <option value="0.125">0.125×</option>
+        <option value="0.25">0.25×</option>
+        <option value="0.5">0.5×</option>
+        <option value="1">1×</option>
+        <option value="2" selected>2×</option>
+        <option value="5">5×</option>
+        <option value="10">10×</option>
+      </select>
+      <label class="speed-label" style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;">
+        <input type="checkbox" id="cb-annot" unchecked> Annotations
+      </label>
+    </div>
+  </div>
+
+  <div id="sweep-panel">
+    <div class="sw-header">Parameter Sweep</div>
+    <div class="sw-body">
+      <div class="sw-row">
+        <label class="sw-label">Mode</label>
+        <select id="sw-mode">
+          <option value="1d">1D — line chart</option>
+          <option value="2d">2D — heat map</option>
+        </select>
+        <label class="sw-label">dt (s)</label>
+        <input type="number" id="sw-dt" value="0.0004" step="0.0001" style="width:90px">
+        <label class="sw-label">engine</label>
+        <select id="sw-engine">
+          <option value="cpu">CPU (workers, f64)</option>
+          <option value="gpu">GPU (WebGL, f32 — experimental)</option>
+        </select>
+        <button id="sw-run">Run sweep</button>
+        <span id="sw-status" style="font-size:0.78rem;color:var(--dim);margin-left:4px;"></span>
+      </div>
+      <div class="sw-row" style="margin-top:8px;">
+        <label class="sw-label" id="sw-lbl-x" style="min-width:46px;">Sweep</label>
+        <select id="sw-param">
+          <option value="v">v — initial velocity</option>
+          <option value="m1">m₂ — stationary mass</option>
+          <option value="m2">m₁ — pair total mass</option>
+          <option value="k1">k₂ — anchor spring stiffness</option>
+          <option value="k2">k₁ — pair spring stiffness</option>
+          <option value="L1">L₂ — anchor spring rest length</option>
+          <option value="L2">L₁ — pair spring rest length</option>
+          <option value="split">split — mB/m₁ (0.5 = equal masses)</option>
+          <option value="cor">e — coefficient of restitution</option>
+          <option value="b1">β₂ — anchor spring cubic term</option>
+          <option value="T1">T₂ — anchor natural period</option>
+          <option value="T2">T₁ — pair internal period</option>
+        </select>
+        <label class="sw-label">from</label>
+        <input type="number" id="sw-start" value="0.5" step="0.1">
+        <label class="sw-label">to</label>
+        <input type="number" id="sw-end" value="3" step="0.1">
+        <label class="sw-label">samples</label>
+        <input type="number" id="sw-steps" value="6" min="2" step="1">
+      </div>
+      <div class="sw-row" id="sw-row-y" style="margin-top:8px;display:none;">
+        <label class="sw-label" style="min-width:46px;">and Y</label>
+        <select id="sw-param2">
+          <option value="cor">e — coefficient of restitution</option>
+          <option value="v">v — initial velocity</option>
+          <option value="m1">m₂ — stationary mass</option>
+          <option value="m2">m₁ — pair total mass</option>
+          <option value="k1">k₂ — anchor spring stiffness</option>
+          <option value="k2">k₁ — pair spring stiffness</option>
+          <option value="L1">L₂ — anchor spring rest length</option>
+          <option value="L2">L₁ — pair spring rest length</option>
+          <option value="split">split — mB/m₁ (0.5 = equal masses)</option>
+          <option value="b1">β₂ — anchor spring cubic term</option>
+          <option value="T1">T₂ — anchor natural period</option>
+          <option value="T2">T₁ — pair internal period</option>
+        </select>
+        <label class="sw-label">from</label>
+        <input type="number" id="sw-start2" value="0" step="0.1">
+        <label class="sw-label">to</label>
+        <input type="number" id="sw-end2" value="1" step="0.1">
+        <label class="sw-label">samples</label>
+        <input type="number" id="sw-steps2" value="11" min="2" step="1">
+      </div>
+      <div id="sw-results"></div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ── constants ──────────────────────────────────────────────────────────────
+  const ANCHOR = 10;   // m  (right boundary, fixed wall)
+  let DT = 0.0004;     // physics timestep (s) — mutable so the UI can change it
+
+  // ── mutable params & state ─────────────────────────────────────────────────
+  // b1 = cubic (Duffing) coefficient of the anchor spring: F1 = k1·ext1 + b1·ext1³.
+  // b1 = 0 → linear; b1 > 0 → trampoline-like hardening.
+  let p = { m1: 1, m2: 1, k1: 1, k2: 1, v: 1, L1: 2, L2: 2, split: 0.5, cor: 0, b1: 0 };
+
+  // m2 model: 'pair' = two masses (mA,mB) joined by spring k2; 'single' = one mass
+  // m2 with a massless one-sided contact spring (k2, length L2) on its front face;
+  // 'chain' = N masses (each m2/N) joined by N-1 two-sided springs (k2,L2), with a
+  // one-sided contact spring (k2,L2) on the front mass — like single, but a chain.
+  let _m2mode = 'pair';
+  let _nchain = 5;     // number of masses when _m2mode === 'chain'
+  let _single1 = false; // single mode: end the run at the first release (one collision only)
+
+  // 'pair': mB starts 1 m left of m1, mA is L2 further left (spring at rest).
+  // 'single'/'chain': the front spring tip (front mass + L2) starts 1 m left of m1.
+  function freshState() {
+    const x1 = ANCHOR - p.L1;
+    if (_m2mode === 'chain') {
+      const N = Math.max(2, Math.round(_nchain)), Le = p.L2 / N;  // each spring is L₁/N long
+      const front = x1 - 1 - Le;              // front (last) mass position
+      const cx = [], cv = [];
+      for (let i = 0; i < N; i++) { cx.push(front - (N - 1 - i) * Le); cv.push(0); }
+      return { cx, cv, xa: cx[0], va: 0, xb: cx[N - 1], vb: 0, x1, v1: 0, t: 0, started: false, inContact: false };
+    }
+    if (_m2mode === 'single') {
+      const xb = x1 - 1 - p.L2;
+      return { xa: xb, va: 0, xb, vb: 0, x1, v1: 0, t: 0, started: false, inContact: false, released: false };
+    }
+    const xb  = x1 - 1;
+    const xa  = xb - p.L2;
+    return { xa, va: 0, xb, vb: 0, x1, v1: 0, t: 0, started: false, inContact: false };
+  }
+
+  function mA() { return (1 - p.split) * p.m2; } // trailing mass
+  function mB() { return p.split * p.m2; }        // leading mass (hits m1); split = mB/m₂
+  // reduced mass used for T₂: pair internal mode, or m1–m2 contact mode (single/chain)
+  function mu2For(m2v) {
+    if (_m2mode === 'single') return m2v;                          // moving mass alone → T₁ = 2π√(m₁/k₁)
+    if (_m2mode === 'chain')  return (p.m1 * m2v) / (p.m1 + m2v);  // m₁–m₂ contact reduced mass
+    return p.split * (1 - p.split) * m2v;                          // pair: internal reduced mass
+  }
+  function m2FromMu(mu) {
+    if (_m2mode === 'single') return mu;
+    if (_m2mode === 'chain')  return (mu * p.m1) / (p.m1 - mu);
+    return mu / (p.split * (1 - p.split));
+  }
+
+  let s = freshState();
+  let playing = false;
+
+  let speedMult = 2;
+  let animId = null;
+  let showAnnot = false;   // text labels + velocity arrows on the canvas
+
+  // ── physics: symplectic Euler ───────────────────────────────────────────────
+  function physStep() {
+    const ext1 = (ANCHOR - s.x1) - p.L1;
+    const fAnchor = p.k1 * ext1 + p.b1 * ext1**3;   // anchor spring on m1 (toward +x when ext1>0)
+
+    if (_m2mode === 'chain') {
+      // N masses (each m2/N) + N-1 two-sided springs + one-sided contact spring; each spring L₁/N
+      const N = s.cx.length, mc = p.m2 / N, Le = p.L2 / N;
+      const gap = s.x1 - s.cx[N - 1];
+      const Fc = gap <= Le ? p.k2 * (gap - Le) : 0;   // contact force term (≤0 compressed)
+      for (let i = 0; i < N; i++) {
+        let F = 0;
+        if (i > 0)     F += -p.k2 * ((s.cx[i] - s.cx[i - 1]) - Le); // left spring
+        if (i < N - 1) F +=  p.k2 * ((s.cx[i + 1] - s.cx[i]) - Le); // right spring
+        if (i === N - 1) F += Fc;                                   // contact on front mass
+        s.cv[i] += (F / mc) * DT;
+      }
+      s.v1 += ((fAnchor - Fc) / p.m1) * DT;
+      for (let i = 0; i < N; i++) s.cx[i] += s.cv[i] * DT;
+      s.x1 += s.v1 * DT;
+      s.xa = s.cx[0]; s.xb = s.cx[N - 1];   // keep ends in sync for any shared refs
+      s.inContact = gap <= Le;
+      s.t += DT;
+      return;
+    }
+
+    if (_m2mode === 'single') {
+      // single mass m2 (= s.xb/s.vb) with a one-sided contact spring on its front
+      const gap = s.x1 - s.xb;          // distance between m1 and m2
+      const extC = gap - p.L2;          // contact-spring extension; engaged (≤0) only while gap≤L2
+      const engaged = gap <= p.L2;
+      const Fc = engaged ? p.k2 * extC : 0; // ≤0 when compressed
+      s.v1 += ((fAnchor - Fc) / p.m1) * DT; // contact pushes m1 in +x when compressed
+      s.vb += ((Fc) / p.m2) * DT;           // and m2 in −x
+      s.x1 += s.v1 * DT;
+      s.xb += s.vb * DT;
+      s.xa = s.xb;                          // no trailing mass in this mode
+      if (_single1 && s.inContact && !engaged) s.released = true; // first release → end the run
+      s.inContact = engaged;
+      s.t += DT;
+      return;
+    }
+
+    // pair mode: mA, mB joined by spring k2; mB collides with m1
+    const ext2 = (s.xb - s.xa) - p.L2;
+    s.va += (p.k2 * ext2 / mA()) * DT;
+    s.vb -= (p.k2 * ext2 / mB()) * DT;
+    s.v1 += (fAnchor / p.m1) * DT;
+    s.xa += s.va * DT;
+    s.xb += s.vb * DT;
+    s.x1 += s.v1 * DT;
+
+    const xc = s.x1 - 2 * ballRm;   // mB centre when the two balls' edges touch
+    if (s.xb >= xc && s.vb > s.v1 && !s.inContact) {
+      const ma = mB(), mb = p.m1, e = p.cor;
+      const va0 = s.vb, vb0 = s.v1;
+      s.vb = ((ma - e * mb) * va0 + (1 + e) * mb * vb0) / (ma + mb);
+      s.v1 = ((mb - e * ma) * vb0 + (1 + e) * ma * va0) / (ma + mb);
+      s.xb = xc;
+      s.inContact = true;
+    }
+    if (s.inContact) {
+      if (s.xb > xc && s.vb > s.v1) {
+        const M = mB() + p.m1, vc = (mB() * s.vb + p.m1 * s.v1) / M;
+        s.vb = vc; s.v1 = vc; s.xb = xc;
+      } else if (s.xb < xc || s.vb < s.v1) {
+        s.inContact = false;
+      }
+    }
+
+    s.t += DT;
+  }
+
+  function energy() {
+    const ext1 = (ANCHOR - s.x1) - p.L1;
+    const peAnchor = 0.5 * p.k1 * ext1**2 + 0.25 * p.b1 * ext1**4;
+    if (_m2mode === 'chain') {
+      const N = s.cx.length, mc = p.m2 / N, Le = p.L2 / N;
+      let ke = 0.5 * p.m1 * s.v1**2, pe = peAnchor;
+      for (let i = 0; i < N; i++) ke += 0.5 * mc * s.cv[i]**2;
+      for (let i = 0; i < N - 1; i++) { const e = (s.cx[i + 1] - s.cx[i]) - Le; pe += 0.5 * p.k2 * e**2; }
+      const gap = s.x1 - s.cx[N - 1];
+      if (gap <= Le) { const ec = gap - Le; pe += 0.5 * p.k2 * ec**2; }
+      return { ke, pe };
+    }
+    if (_m2mode === 'single') {
+      const ke = 0.5 * p.m2 * s.vb**2 + 0.5 * p.m1 * s.v1**2;
+      const gap = s.x1 - s.xb, extC = gap - p.L2;
+      const peContact = gap <= p.L2 ? 0.5 * p.k2 * extC**2 : 0;
+      return { ke, pe: peAnchor + peContact };
+    }
+    const ke = 0.5 * mA() * s.va**2 + 0.5 * mB() * s.vb**2 + 0.5 * p.m1 * s.v1**2;
+    const ext2 = (s.xb - s.xa) - p.L2;
+    return { ke, pe: peAnchor + 0.5 * p.k2 * ext2**2 };
+  }
+
+  // ── canvas setup ───────────────────────────────────────────────────────────
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let cw = 0, ch = 0;   // canvas CSS (drawing) size in px; buffer is cw·dpr × ch·dpr
+  let ballRm = 0.15;    // mass radius in metres (matches the drawn radius; for edge contact)
+
+  // mass sprites: m1.png (blue) for the moving masses, m2.png (red) for the anchored mass
+  const imgM1 = new Image(); imgM1.src = 'm1.png';
+  const imgM2 = new Image(); imgM2.src = 'm2.png';
+  imgM1.onload = imgM2.onload = () => render();
+
+  function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    cw = canvas.parentElement.clientWidth;
+    ch = Math.max(140, Math.min(260, Math.round(cw * 0.2)));
+    canvas.style.width  = cw + 'px';
+    canvas.style.height = ch + 'px';
+    canvas.width  = Math.round(cw * dpr);   // device-pixel backing store → crisp
+    canvas.height = Math.round(ch * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS px, render at device resolution
+    const rpx = Math.max(11, Math.min(35, Math.round(ch * 0.17))); // matches render's r
+    ballRm = rpx * ANCHOR / cw;             // that radius expressed in metres
+  }
+
+  // metres → canvas (CSS) pixels
+  function px(xm) { return (xm / ANCHOR) * cw; }
+
+  // ── drawing helpers ────────────────────────────────────────────────────────
+  // zigzag-segment count from a spring's *drawn* rest length (m) — i.e. rest length minus the
+  // ball radii it's drawn shorter by — so every spring gets the same pitch regardless of how
+  // many radii are trimmed. Stays fixed as the spring stretches (pitch changes, not the count).
+  const springSegs = drawnL => Math.max(4, Math.min(28, Math.round(drawnL * 5)));
+
+  // a shade darker, for the "behind" strands of the 3D spring
+  const darken = (hex, f) => {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgb(${Math.round((n >> 16 & 255) * f)},${Math.round((n >> 8 & 255) * f)},${Math.round((n & 255) * f)})`;
+  };
+
+  function drawSpring(x1, x2, cy, segs, amp, color) {
+    const len = x2 - x1;
+    if (len < 6) return;
+    const end = Math.min(len * 0.1, 14);
+    const zigLen = len - 2 * end;
+    const n = segs, step = zigLen / n;
+
+    // zigzag vertices: flat lead-in, alternating peaks/valleys, flat lead-out
+    const v = [[x1, cy], [x1 + end, cy]];
+    for (let i = 0; i < n; i++) v.push([x1 + end + (i + 0.5) * step, cy + (i % 2 === 0 ? -amp : amp)]);
+    v.push([x2 - end, cy], [x2, cy]);
+
+    ctx.save();
+    ctx.lineWidth = 10;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    // pass 1: down-right strands (top-left → bottom-right), darker, drawn behind
+    ctx.strokeStyle = darken(color, 0.6);
+    ctx.beginPath();
+    for (let k = 0; k < v.length - 1; k++)
+      if (v[k + 1][1] > v[k][1]) { ctx.moveTo(v[k][0], v[k][1]); ctx.lineTo(v[k + 1][0], v[k + 1][1]); }
+    ctx.stroke();
+    // pass 2: up-right strands + flat ends, base colour, drawn in front
+    ctx.strokeStyle = color;
+    ctx.beginPath();
+    for (let k = 0; k < v.length - 1; k++)
+      if (v[k + 1][1] <= v[k][1]) { ctx.moveTo(v[k][0], v[k][1]); ctx.lineTo(v[k + 1][0], v[k + 1][1]); }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawMass(cx, cy, r, label, fill) {
+    const img = (fill === '#da3633') ? imgM2 : imgM1;   // red = anchored, blue = moving
+    if (img.complete && img.naturalWidth) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(img, cx - r, cy - r, 2 * r, 2 * r);
+      ctx.restore();
+    } else {                                            // fallback until the sprite loads
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+    if (!showAnnot) return;
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${Math.round(r * 0.65)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, cx, cy);
+  }
+
+  function drawVelArrow(cx, cy, r, vel) {
+    const scale = cw / 30;
+    const len = vel * scale;
+    if (Math.abs(len) < 3) return;
+    const y = cy - r - 6;
+    const dir = Math.sign(len);
+    const x2 = cx + len;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,220,80,0.8)';
+    ctx.fillStyle  = 'rgba(255,220,80,0.8)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx, y);
+    ctx.lineTo(x2, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2, y);
+    ctx.lineTo(x2 - dir * 6, y - 4);
+    ctx.lineTo(x2 - dir * 6, y + 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ── main render ────────────────────────────────────────────────────────────
+  function render() {
+    const W = cw, H = ch;
+    const cy = Math.round(H * 0.54);
+    const r  = Math.max(11, Math.min(35, Math.round(H * 0.17)));
+    const amp = Math.max(10, Math.round(H * 0.17));
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0d1117';
+    ctx.fillRect(0, 0, W, H);
+
+    // anchor wall
+    const ax = px(ANCHOR);
+    const ww = Math.max(16, Math.round(W * 0.018));
+    ctx.fillStyle = '#21262d';
+    ctx.fillRect(ax, cy - H * 0.35, ww, H * 0.7);
+    ctx.strokeStyle = '#484f58';
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 7; i++) {
+      const y0 = cy - H * 0.35 + i * (H * 0.7 / 7);
+      ctx.beginPath();
+      ctx.moveTo(ax, y0);
+      ctx.lineTo(ax + ww, y0 + 10);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#6e7681';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(ax, cy - H * 0.35);
+    ctx.lineTo(ax, cy + H * 0.35);
+    ctx.stroke();
+
+    // positions in pixels
+    const cxb = px(s.xb);
+    const cx1 = px(s.x1);
+
+    // spring k1 (m1 → anchor)
+    drawSpring(cx1 + r, ax, cy, springSegs(p.L1 - ballRm), amp, '#58a6ff'); // anchor: 1 ball radius (wall has none)
+
+    if (_m2mode === 'chain') {
+      const N = s.cx.length, Le = p.L2 / N;           // each spring is L₁/N long
+      const rc = Math.max(4, Math.round(r * 0.62));   // smaller radius for chain masses
+      for (let i = 0; i < N - 1; i++) {               // internal springs, surface to surface
+        const a = px(s.cx[i]) + rc, b = px(s.cx[i + 1]) - rc;
+        if (b > a) drawSpring(a, b, cy, springSegs(Le), amp * 0.7, '#56d364');
+      }
+      const front = px(s.cx[N - 1]);
+      const springRight = Math.min(px(s.cx[N - 1] + Le) - r, cx1 - r); // front contact spring (clamped)
+      if (springRight > front + rc) drawSpring(front + rc, springRight, cy, springSegs(Le), amp * 0.7, '#56d364');
+      if (showAnnot) {
+        for (let i = 0; i < N; i++) drawVelArrow(px(s.cx[i]), cy, rc, s.cv[i]);
+        drawVelArrow(cx1, cy, r, s.v1);
+      }
+      for (let i = 0; i < N; i++) drawMass(px(s.cx[i]), cy, rc, '', '#1f6feb');
+      drawMass(cx1, cy, r, 'm₂', '#da3633');
+      if (showAnnot) {
+        const mid = (px(s.cx[0]) + front) / 2;
+        ctx.fillStyle = '#8b949e'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(`m₁ = ${p.m2.toFixed(2)} kg  (N=${N} × ${(p.m2 / N).toFixed(3)})`, mid, cy + rc + 13);
+        ctx.fillText(p.m1.toFixed(2) + ' kg', cx1, cy + r + 13);
+        ctx.fillStyle = '#56d364';
+        ctx.fillText(`k₁=${p.k2}  L₁=${p.L2}m`, mid, cy - amp - 8);
+        ctx.fillStyle = '#58a6ff';
+        ctx.fillText(`k₂=${p.k1}  L₂=${p.L1}m`, (cx1 + ax) / 2, cy - amp - 8);
+      }
+      return;
+    }
+
+    if (_m2mode === 'single') {
+      // single mass m2 + one-sided front spring. The physics is a point-mass model
+      // (engages when the real tip reaches the anchored CENTRE, gap = L2), but the mass
+      // is drawn with radius r. So draw the tip r shorter: it then just touches the
+      // surface exactly at engagement — no penetration AND no phantom pre-compression.
+      const springRight = Math.min(px(s.xb + p.L2) - r, cx1 - r);
+      if (springRight > cxb + r) drawSpring(cxb + r, springRight, cy, springSegs(p.L2 - 2 * ballRm), amp, '#56d364');
+      if (showAnnot) {
+        drawVelArrow(cxb, cy, r, s.vb);
+        drawVelArrow(cx1, cy, r, s.v1);
+      }
+      drawMass(cxb, cy, r, 'm₁', '#1f6feb');
+      drawMass(cx1, cy, r, 'm₂', '#da3633');
+      if (showAnnot) {
+        ctx.fillStyle = '#8b949e'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+        ctx.fillText(p.m2.toFixed(2) + ' kg', cxb, cy + r + 13);
+        ctx.fillText(p.m1.toFixed(2) + ' kg', cx1, cy + r + 13);
+        ctx.fillStyle = '#56d364';
+        ctx.fillText(`k₁=${p.k2}  L₁=${p.L2}m`, (cxb + springRight) / 2, cy - amp - 8);
+        ctx.fillStyle = '#58a6ff';
+        ctx.fillText(`k₂=${p.k1}  L₂=${p.L1}m`, (cx1 + ax) / 2, cy - amp - 8);
+      }
+      return;
+    }
+
+    // pair mode
+    const cxa = px(s.xa);
+    // spring k2 (mA → mB)
+    if (cxb - r > cxa + r) {
+      drawSpring(cxa + r, cxb - r, cy, springSegs(p.L2 - 2 * ballRm), amp, '#56d364');
+    }
+
+    // velocity arrows
+    if (showAnnot) {
+      drawVelArrow(cxa, cy, r, s.va);
+      drawVelArrow(cxb, cy, r, s.vb);
+      drawVelArrow(cx1, cy, r, s.v1);
+    }
+
+    // masses
+    drawMass(cxa, cy, r, 'mₐ', '#1f6feb');
+    drawMass(cxb, cy, r, 'mᵦ', '#1f6feb');
+    drawMass(cx1, cy, r, 'm₂', '#da3633');
+
+    if (!showAnnot) return;
+
+    // mass value labels
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(mA().toFixed(2) + ' kg', cxa, cy + r + 13);
+    ctx.fillText(mB().toFixed(2) + ' kg', cxb, cy + r + 13);
+    ctx.fillText(p.m1.toFixed(2) + ' kg', cx1, cy + r + 13);
+
+    // spring labels
+    ctx.font = '10px monospace';
+    ctx.fillStyle = '#56d364';
+    ctx.textAlign = 'center';
+    const midK2x = (cxa + cxb) / 2;
+    if (cxb - cxa > 30) ctx.fillText(`k₁=${p.k2}  L₁=${p.L2}m`, midK2x, cy - amp - 8);
+    ctx.fillStyle = '#58a6ff';
+    ctx.fillText(`k₂=${p.k1}  L₂=${p.L1}m`, (cx1 + ax) / 2, cy - amp - 8);
+  }
+
+  // ── animation loop ─────────────────────────────────────────────────────────
+  function stepsPerFrame() {
+    // speedMult × realtime at ~60 fps
+    return Math.max(1, Math.round(speedMult / (60 * DT)));
+  }
+
+  function updateStatus() {
+    const { ke, pe } = energy();
+    document.getElementById('st-t').textContent = `t = ${s.t.toFixed(3)} s`;
+    document.getElementById('st-e').textContent =
+      `KE = ${ke.toFixed(3)} J  |  PE = ${pe.toFixed(3)} J  |  E = ${(ke + pe).toFixed(3)} J`;
+    document.getElementById('st-v').textContent =
+      _m2mode === 'chain'  ? `v₁(cm) = ${(s.cv.reduce((a, b) => a + b, 0) / s.cv.length).toFixed(3)}  v₂ = ${s.v1.toFixed(3)} m/s`
+      : _m2mode === 'single' ? `v₁ = ${s.vb.toFixed(3)}  v₂ = ${s.v1.toFixed(3)} m/s`
+      : `v₂ = ${s.v1.toFixed(3)}  vₐ = ${s.va.toFixed(3)}  v_b = ${s.vb.toFixed(3)} m/s`;
+  }
+
+  function animate() {
+    if (!playing) return;
+    const n = stepsPerFrame();
+    for (let i = 0; i < n; i++) { physStep(); if (s.released) break; }
+    render();
+    updateStatus();
+    if (s.released) {            // one-collision mode: freeze the sim at the first release
+      playing = false;
+      document.getElementById('btn-play').textContent = '▶ Play';
+      return;
+    }
+    animId = requestAnimationFrame(animate);
+  }
+
+  // ── buttons ────────────────────────────────────────────────────────────────
+  document.getElementById('btn-play').addEventListener('click', () => {
+    if (!playing && !s.started) {
+      // apply initial velocity on first play
+      if (_m2mode === 'chain') s.cv.fill(p.v);
+      else { s.va = p.v; s.vb = p.v; }
+      s.started = true;
+    }
+    playing = !playing;
+    document.getElementById('btn-play').textContent = playing ? '⏸ Pause' : '▶ Play';
+    if (playing) animId = requestAnimationFrame(animate);
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    playing = false;
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+    document.getElementById('btn-play').textContent = '▶ Play';
+    s = freshState();
+    render();
+    updateStatus();
+  });
+
+  document.getElementById('sel-speed').addEventListener('change', e => {
+    speedMult = parseFloat(e.target.value);
+  });
+
+  document.getElementById('cb-annot').addEventListener('change', e => {
+    showAnnot = e.target.checked;
+    render();
+  });
+
+  document.getElementById('btn-params').addEventListener('click', () => {
+    const boxes = document.getElementById('param-boxes');
+    const collapsed = boxes.style.display === 'none';
+    boxes.style.display = collapsed ? '' : 'none';
+    document.getElementById('btn-params').textContent = (collapsed ? '▾' : '▸') + ' Parameters';
+  });
+
+  document.getElementById('in-dt').addEventListener('change', e => {
+    const val = parseFloat(e.target.value);
+    if (isFinite(val) && val > 0) DT = val;
+  });
+
+  // ── parameter sliders + inputs ─────────────────────────────────────────────
+  [
+    ['m1',    'sl-m1',    'in-m1'   ],
+    ['m2',    'sl-m2',    'in-m2'   ],
+    ['k1',    'sl-k1',    'in-k1'   ],
+    ['k2',    'sl-k2',    'in-k2'   ],
+    ['v',     'sl-v',     'in-v'    ],
+    ['L1',    'sl-L1',    'in-L1'   ],
+    ['L2',    'sl-L2',    'in-L2'   ],
+    ['cor',   'sl-cor',   'in-cor'  ],
+    ['b1',    'sl-b1',    'in-b1'   ],
+  ].forEach(([key, slId, inId]) => {
+    const sl  = document.getElementById(slId);
+    const inp = document.getElementById(inId);
+
+    sl.addEventListener('input', () => {
+      const val = parseFloat(sl.value);
+      p[key] = val;
+      inp.value = val;
+      reconcileFor(key);
+      if (!playing) { render(); updateStatus(); }
+    });
+
+    inp.addEventListener('change', () => {
+      let val = parseFloat(inp.value);
+      if (isFinite(val)) {
+        if (key === 'split') val = Math.max(0.01, Math.min(0.99, val));
+        if (key === 'cor')   val = Math.max(0,    Math.min(1,    val));
+        if (key === 'b1')    val = Math.max(0, val); // hardening only (≥ 0)
+        if (val > 0 || key === 'cor' || key === 'b1') {
+          p[key] = val;
+          inp.value = val;
+          sl.value = Math.max(parseFloat(sl.min), Math.min(parseFloat(sl.max), val));
+        }
+      }
+      reconcileFor(key);
+      if (!playing) { render(); updateStatus(); }
+    });
+  });
+
+  // ── natural-period sliders ─────────────────────────────────────────────────
+  // T = 2π√(m/k). A per-system "driven" selector picks which of {m, k, T} is the
+  // computed (dependent) one; the other two are free and recompute it. T₂ uses the
+  // pair's reduced mass μ = split·(1−split)·m₂, so split is the genuine 3rd input.
+  const FOUR_PI2 = 4 * Math.PI * Math.PI;
+  let _drive1 = 'T1', _drive2 = 'T2';
+  let _t2contact = false;             // T₂ uses the in-contact stiffness k₂+k₁ instead of k₂ alone
+  const t2ex = () => _t2contact ? p.k2 : 0;  // extra anchor stiffness (the contact/moving spring k₁) for T₂
+  let _suppressReconcile = false; // set during batch param loads (e.g. heatmap click)
+  const numFmt = x => parseFloat((+x).toPrecision(5));
+  const readInp = key => parseFloat(document.getElementById('in-' + key).value);
+  function setCtl(key, val){
+    const sl = document.getElementById('sl-' + key), inp = document.getElementById('in-' + key);
+    if (inp) inp.value = numFmt(val);
+    if (sl)  sl.value  = Math.max(parseFloat(sl.min), Math.min(parseFloat(sl.max), val));
+  }
+
+  function reconcile1(){
+    if (_suppressReconcile) return;
+    let m1, k1, T1;
+    if      (_drive1 === 'T1') { m1 = readInp('m1'); k1 = readInp('k1'); T1 = 2*Math.PI*Math.sqrt(m1/(k1 + t2ex())); }
+    else if (_drive1 === 'k1') { m1 = readInp('m1'); T1 = readInp('T1'); k1 = FOUR_PI2*m1/(T1*T1) - t2ex(); }
+    else                       { k1 = readInp('k1'); T1 = readInp('T1'); m1 = (k1 + t2ex())*T1*T1/FOUR_PI2; }
+    if (!(isFinite(m1) && isFinite(k1) && isFinite(T1) && m1 > 0 && k1 > 0 && T1 > 0)) return;
+    p.m1 = m1; p.k1 = k1;
+    setCtl('m1', m1); setCtl('k1', k1); setCtl('T1', T1);
+  }
+  function reconcile2(){
+    if (_suppressReconcile) return;
+    let m2, k2, T2;
+    if      (_drive2 === 'T2') { m2 = readInp('m2'); k2 = readInp('k2'); T2 = 2*Math.PI*Math.sqrt(mu2For(m2)/k2); }
+    else if (_drive2 === 'k2') { m2 = readInp('m2'); T2 = readInp('T2'); k2 = FOUR_PI2*mu2For(m2)/(T2*T2); }
+    else                       { k2 = readInp('k2'); T2 = readInp('T2'); m2 = m2FromMu(k2*T2*T2/FOUR_PI2); }
+    if (!(isFinite(m2) && isFinite(k2) && isFinite(T2) && m2 > 0 && k2 > 0 && T2 > 0)) return;
+    p.m2 = m2; p.k2 = k2;
+    setCtl('m2', m2); setCtl('k2', k2); setCtl('T2', T2);
+  }
+  function reconcileFor(key){
+    if      (key === 'm1' || key === 'k1' || key === 'T1') reconcile1();
+    else if (key === 'm2' || key === 'k2' || key === 'T2' || key === 'split') {
+      reconcile2();
+      if (_t2contact) reconcile1(); // T₂ depends on k₁ — refresh after any moving-system change
+    }
+  }
+  // refresh the T displays from the current m/k/split (T is always derived)
+  function seedPeriodInputs(){
+    setCtl('T1', 2 * Math.PI * Math.sqrt(p.m1 / (p.k1 + t2ex())));
+    setCtl('T2', 2 * Math.PI * Math.sqrt(mu2For(p.m2) / p.k2));
+  }
+  // set a period directly: drives the system's chosen variable (used by sweep axis
+  // resolution and heatmap click-load; independent of reconcile/suppression)
+  function applyPeriod(key, T){
+    if (key === 'T1'){
+      if (_drive1 === 'm1') p.m1 = (p.k1 + t2ex()) * T * T / FOUR_PI2;
+      else                  p.k1 = FOUR_PI2 * p.m1 / (T * T) - t2ex();
+      setCtl('m1', p.m1); setCtl('k1', p.k1); setCtl('T1', T);
+    } else {
+      if (_drive2 === 'm2') p.m2 = m2FromMu(p.k2 * T * T / FOUR_PI2);
+      else                  p.k2 = FOUR_PI2 * mu2For(p.m2) / (T * T);
+      setCtl('m2', p.m2); setCtl('k2', p.k2); setCtl('T2', T);
+    }
+  }
+  // translate a sweep axis to the real param it overrides; for T1/T2 use the
+  // driven selection (returns null if that system's driven variable is T itself)
+  function resolveSweep(param, vals){
+    if (param === 'T1'){
+      if (_drive1 === 'T1') return null;
+      const key = _drive1, ex = t2ex();
+      return { key, actual: vals.map(T => key === 'k1' ? FOUR_PI2 * p.m1 / (T*T) - ex : (p.k1 + ex) * T*T / FOUR_PI2) };
+    }
+    if (param === 'T2'){
+      if (_drive2 === 'T2') return null;
+      const key = _drive2;
+      return { key, actual: vals.map(T => key === 'k2' ? FOUR_PI2 * mu2For(p.m2) / (T*T) : m2FromMu(p.k2 * T*T / FOUR_PI2)) };
+    }
+    return { key: param, actual: vals };
+  }
+  // the m/k input a period reads (the non-driven one of its system), or null
+  function periodInput(periodKey){
+    if (periodKey === 'T1') return _drive1 === 'k1' ? 'm1' : 'k1';
+    if (periodKey === 'T2') return _drive2 === 'k2' ? 'm2' : 'k2';
+    return null;
+  }
+  // value of a period's driven param for period T, given a supplied m/k input value
+  function periodDrivenVal(periodKey, T, input){
+    if (periodKey === 'T1') {
+      const ex = t2ex();
+      return _drive1 === 'k1' ? FOUR_PI2 * input / (T*T) - ex : (input + ex) * T*T / FOUR_PI2;
+    }
+    return _drive2 === 'k2' ? FOUR_PI2 * mu2For(input) / (T*T) : m2FromMu(input * T*T / FOUR_PI2);
+  }
+  // A period axis can't co-sweep the variable it *drives* (double-set), nor split for
+  // system 2 (couples through the reduced mass). Its other m/k input IS allowed — that
+  // pairing is resolved per cell in the 2D job builder.
+  function periodConflict(a, b){
+    if (a === 'T1') return b === _drive1;
+    if (a === 'T2') return b === _drive2 || b === 'split';
+    return false;
+  }
+
+  function setDisabled(key, dis){
+    ['sl-' + key, 'in-' + key].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = dis; });
+  }
+  function applyDriven(sys){
+    if (sys === 1) ['m1','k1','T1'].forEach(k => setDisabled(k, _drive1 === k));
+    else           ['m2','k2','T2'].forEach(k => setDisabled(k, _drive2 === k));
+  }
+
+  // T-slider handlers (active only when their system's driven ≠ T)
+  [['T1', reconcile1], ['T2', reconcile2]].forEach(([key, reconcile]) => {
+    const sl = document.getElementById('sl-' + key), inp = document.getElementById('in-' + key);
+    sl.addEventListener('input', () => { inp.value = sl.value; reconcile(); if (!playing) { render(); updateStatus(); } });
+    inp.addEventListener('change', () => {
+      const v = parseFloat(inp.value);
+      if (isFinite(v) && v > 0) {
+        sl.value = Math.max(parseFloat(sl.min), Math.min(parseFloat(sl.max), v));
+        reconcile(); if (!playing) { render(); updateStatus(); }
+      }
+    });
+  });
+  document.getElementById('drv-1').addEventListener('change', e => { _drive1 = e.target.value; applyDriven(1); reconcile1(); if (!playing) { render(); updateStatus(); } });
+  document.getElementById('t2-contact').addEventListener('change', e => {
+    _t2contact = e.target.checked;
+    reconcile1();                 // recompute T₂ (or its driven m₂/k₂) with the new stiffness
+    saveState();
+    if (!playing) { render(); updateStatus(); }
+  });
+  document.getElementById('drv-2').addEventListener('change', e => { _drive2 = e.target.value; applyDriven(2); reconcile2(); if (!playing) { render(); updateStatus(); } });
+
+  // grey out controls that don't apply in 'single' mode (split, e), keep driven greying
+  function applyMode(){
+    const notPair = _m2mode !== 'pair';   // split & e are irrelevant in single/chain
+    setDisabled('split', notPair);
+    setDisabled('cor', notPair);
+    document.getElementById('nchain-wrap').style.display = _m2mode === 'chain' ? '' : 'none';
+    document.getElementById('single1-wrap').style.display = _m2mode === 'single' ? '' : 'none';
+    applyDriven(1); applyDriven(2);
+  }
+  function resetSim(){
+    playing = false;
+    if (animId) { cancelAnimationFrame(animId); animId = null; }
+    document.getElementById('btn-play').textContent = '▶ Play';
+    s = freshState();
+    render(); updateStatus();
+  }
+  document.getElementById('m2-mode').addEventListener('change', e => {
+    _m2mode = e.target.value;
+    applyMode();
+    seedPeriodInputs();        // T₂'s reduced mass changes with mode
+    resetSim();                // geometry differs between modes
+  });
+  document.getElementById('n-chain').addEventListener('change', e => {
+    _nchain = Math.max(2, Math.round(parseFloat(e.target.value) || 5));
+    e.target.value = _nchain;
+    seedPeriodInputs();
+    if (_m2mode === 'chain') resetSim();
+  });
+  document.getElementById('single1').addEventListener('change', e => {
+    _single1 = e.target.checked;
+    saveState();
+    if (_m2mode === 'single') resetSim();   // clear any frozen state from a previous run
+  });
+
+  // set a parameter from code, syncing the matching UI control(s)
+  function setParam(key, val) {
+    if (key === 'split') { applySplit(val); return; } // split = mB/m₂, set via the log slider
+    if (key === 'T1' || key === 'T2') { applyPeriod(key, val); return; } // period drives m or k
+    p[key] = val;
+    const inp = document.getElementById('in-' + key);
+    const sl  = document.getElementById('sl-' + key);
+    if (inp) inp.value = val;
+    if (sl)  sl.value  = Math.max(parseFloat(sl.min), Math.min(parseFloat(sl.max), val));
+  }
+
+  // ── parameter sweep ────────────────────────────────────────────────────────
+  const SC1='#ff7b72', SC2='#56d364', SC3='#79c0ff', SC4='#e3b341'; // series colours
+  let _sweepKey = null, _sweepRows = null;
+  let _sweepVis = [false, false, true, false]; // E_m2, E_int, E_cm, collisions — start with only E_cm
+  let _sweepSel = null;   // clicked x-value (snapped to a row) for the inspect overlay
+  let _sweepGeom = null;  // {left, pw, xMin, xSpan} from the last draw, for hit-testing clicks
+  let _heatData = null;   // { px, py, xs, ys, cells } from the last 2D sweep
+  let _heatOut = 0;       // selected output index for the heat map
+  let _heatGeom = null;   // {left, top, ph, cellW, cellH, nx, ny} for hover hit-testing
+  let _heatSel = null;    // hovered cell {i, j} or null
+  let _heatDrag = null;   // active drag-select rectangle {x0,y0,x1,y1} in canvas CSS px
+  let _heatPalette = 'Viridis';            // selected colour map
+  let _heatVmin = null, _heatVmax = null;  // manual colour-range override for the current output (null = auto)
+  let _heatRanges = [];                    // remembered {vmin,vmax} per output, so switching outputs keeps each range
+  let _heatHighlight = false;              // mark local maxima/minima sample cells
+  let _heatExtrema = null, _heatExtremaFor = -1; // cached extrema + the output index they're for
+
+  // min/max over an array without spreading it (huge arrays overflow the call stack)
+  const minMax = arr => {
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i < arr.length; i++) {
+      const v = arr[i];
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+    return [lo, hi];
+  };
+
+  // Run one headless simulation and return m1's oscillation amplitude.
+  // Amplitude is computed from energy at the moment the pair stops approaching m1,
+  // which is equivalent (energy is conserved in m1-k1 after that point).
+  function sweepOne(overrides, dt) {
+    const saved = {};
+    for (const k in overrides) { saved[k] = p[k]; p[k] = overrides[k]; }
+
+    const x1_0 = ANCHOR - p.L1;
+    const MAX_STEPS = Math.ceil(1600 / dt); // 1600 s of sim time regardless of dt
+    const E_tot = 0.5 * p.m2 * p.v * p.v;   // initial total energy of m2
+    let result = { E_m1: NaN, E_pair: NaN, E_cm: NaN, E_int: NaN, E_tot, nColl: 0 };
+
+    if (_m2mode === 'chain') {
+      // N masses (each m2/N) joined by N-1 two-sided springs + a one-sided front contact spring
+      const N = Math.max(2, Math.round(_nchain)), mc = p.m2 / N, Le = p.L2 / N; // each spring L₁/N
+      const k2 = p.k2, m1 = p.m1, k1 = p.k1, b1 = p.b1, L1 = p.L1;
+      const cx = [], cv = [], front0 = x1_0 - 1 - Le;
+      for (let i = 0; i < N; i++) { cx.push(front0 - (N - 1 - i) * Le); cv.push(p.v); }
+      let x1 = x1_0, v1 = 0, hit = false, nColl = 0, wasEngaged = false;
+      for (let n = 0; n < MAX_STEPS; n++) {
+        const ext1 = (ANCHOR - x1) - L1;
+        const fAnchor = k1 * ext1 + b1 * ext1**3;
+        const gap = x1 - cx[N - 1];
+        const Fc = gap <= Le ? k2 * (gap - Le) : 0;
+        for (let i = 0; i < N; i++) {
+          let F = 0;
+          if (i > 0)     F += -k2 * ((cx[i] - cx[i - 1]) - Le);
+          if (i < N - 1) F +=  k2 * ((cx[i + 1] - cx[i]) - Le);
+          if (i === N - 1) F += Fc;
+          cv[i] += (F / mc) * dt;
+        }
+        v1 += ((fAnchor - Fc) / m1) * dt;
+        for (let i = 0; i < N; i++) cx[i] += cv[i] * dt;
+        x1 += v1 * dt;
+        const engaged = gap <= Le;
+        if (engaged && !wasEngaged) nColl++;
+        if (engaged) hit = true;
+        wasEngaged = engaged;
+        if (hit && gap > Le) {
+          let cmx = 0, vcm = 0, keSum = 0;
+          for (let i = 0; i < N; i++) { cmx += cx[i]; vcm += cv[i]; keSum += 0.5 * mc * cv[i]**2; }
+          cmx /= N; vcm /= N;
+          if (vcm <= 0) {
+            let peInt = 0;
+            for (let i = 0; i < N - 1; i++) { const e = (cx[i + 1] - cx[i]) - Le; peInt += 0.5 * k2 * e**2; }
+            const E_int = Math.max(0, keSum + peInt - 0.5 * p.m2 * vcm**2);
+            // conservative bound on the front mass's max future position ahead of the CM
+            const frontOffset = (N - 1) * Le / 2 + Math.sqrt(2 * (N - 1) * E_int / k2);
+            const ext1c = (ANCHOR - x1) - L1;
+            const E_m1 = 0.5*m1*v1**2 + 0.5*k1*ext1c**2 + 0.25*b1*ext1c**4;
+            const A1 = Math.sqrt(4*E_m1 / (k1 + Math.sqrt(k1*k1 + 4*b1*E_m1)));
+            const x1_min = (ANCHOR - L1) - A1;
+            if (cmx + frontOffset < x1_min - Le) {
+              const E_cm = 0.5 * p.m2 * vcm**2;
+              result = { E_m1, E_pair: E_cm + E_int, E_cm, E_int, E_tot, nColl };
+              break;
+            }
+          }
+        }
+      }
+      for (const k in overrides) p[k] = saved[k];
+      return result;
+    }
+
+    if (_m2mode === 'single') {
+      // single mass m2 + one-sided contact spring; lossless, no internal energy
+      const sim = { xb: x1_0 - 1 - p.L2, vb: p.v, x1: x1_0, v1: 0 };
+      let hit = false, nColl = 0, wasEngaged = false;
+      for (let n = 0; n < MAX_STEPS; n++) {
+        const ext1 = (ANCHOR - sim.x1) - p.L1;
+        const fAnchor = p.k1 * ext1 + p.b1 * ext1**3;
+        const gap = sim.x1 - sim.xb;
+        const engaged = gap <= p.L2;
+        const Fc = engaged ? p.k2 * (gap - p.L2) : 0;   // ≤0 when compressed
+        sim.v1 += ((fAnchor - Fc) / p.m1) * dt;
+        sim.vb += (Fc / p.m2) * dt;
+        sim.x1 += sim.v1 * dt;
+        sim.xb += sim.vb * dt;
+        if (engaged && !wasEngaged) nColl++;
+        if (engaged) hit = true;
+        if (_single1 && wasEngaged && !engaged) {   // one-collision mode: stop at first release
+          const ext1c = (ANCHOR - sim.x1) - p.L1;
+          const E_m1  = 0.5*p.m1*sim.v1**2 + 0.5*p.k1*ext1c**2 + 0.25*p.b1*ext1c**4;
+          const E_cm  = 0.5 * p.m2 * sim.vb**2;
+          result = { E_m1, E_pair: E_cm, E_cm, E_int: 0, E_tot, nColl };
+          break;
+        }
+        wasEngaged = engaged;
+        // exit: contacted, disengaged, m2 receding, and m1 can never reach it again
+        if (hit && !engaged && sim.vb <= 0) {
+          const ext1c = (ANCHOR - sim.x1) - p.L1;
+          const E_m1  = 0.5*p.m1*sim.v1**2 + 0.5*p.k1*ext1c**2 + 0.25*p.b1*ext1c**4;
+          const A1    = Math.sqrt(4*E_m1 / (p.k1 + Math.sqrt(p.k1*p.k1 + 4*p.b1*E_m1)));
+          const x1_min = (ANCHOR - p.L1) - A1;
+          if (x1_min - sim.xb > p.L2) {
+            const E_cm = 0.5 * p.m2 * sim.vb**2;
+            result = { E_m1, E_pair: E_cm, E_cm, E_int: 0, E_tot, nColl };
+            break;
+          }
+        }
+      }
+      for (const k in overrides) p[k] = saved[k];
+      return result;
+    }
+
+    const xb_0 = x1_0 - 1;
+    const xa_0 = xb_0 - p.L2;
+    const sim = { xa: xa_0, va: p.v, xb: xb_0, vb: p.v, x1: x1_0, v1: 0 };
+    let hit = false, nColl = 0, inContact = false;
+
+    for (let n = 0; n < MAX_STEPS; n++) {
+      const ext2 = (sim.xb - sim.xa) - p.L2;
+      const ext1 = (ANCHOR - sim.x1) - p.L1;
+      const ma = mA(), mb = mB();
+
+      sim.va += (p.k2 * ext2 / ma) * dt;
+      sim.vb -= (p.k2 * ext2 / mb) * dt;
+      sim.v1 += ((p.k1 * ext1 + p.b1 * ext1**3) / p.m1) * dt;
+
+      sim.xa += sim.va * dt;
+      sim.xb += sim.vb * dt;
+      sim.x1 += sim.v1 * dt;
+
+      // collision: mB hits m1
+      if (sim.xb >= sim.x1 && sim.vb > sim.v1 && !inContact) {
+        const e = p.cor, va0 = sim.vb, vb0 = sim.v1;
+        sim.vb = ((mb - e * p.m1) * va0 + (1 + e) * p.m1 * vb0) / (mb + p.m1);
+        sim.v1 = ((p.m1 - e * mb) * vb0 + (1 + e) * mb * va0) / (mb + p.m1);
+        sim.xb = sim.x1;
+        hit = true; nColl++;
+        inContact = true;
+      }
+      if (inContact) {
+        if (sim.xb > sim.x1 && sim.vb > sim.v1) {
+          const M = mb + p.m1, vc = (mb * sim.vb + p.m1 * sim.v1) / M;
+          sim.vb = vc; sim.v1 = vc; sim.xb = sim.x1;
+        } else if (sim.xb < sim.x1 || sim.vb < sim.v1) {
+          inContact = false;
+        }
+      }
+
+      // Exit only when no future mB-m1 collision is energetically possible.
+      //
+      // Between collisions the pair's CM moves at constant velocity (k2 is internal,
+      // no external forces act on the pair). If that velocity is leftward, the pair
+      // can only drift further left, so mB's maximum future position is bounded:
+      //   xb_max = CM_x + (mA/M) * (L2 + sqrt(2*E_internal/k2))
+      // m1's leftmost future position is its equilibrium minus its oscillation amplitude:
+      //   x1_min = (ANCHOR - L1) - sqrt(2*E_m1/k1)
+      // When xb_max < x1_min the pair can never reach m1 again, regardless of phase.
+      if (hit) {
+        const M = p.m2, ma_c = mA(), mb_c = mB();
+        const v_cm = (ma_c * sim.va + mb_c * sim.vb) / M;
+        if (v_cm <= 0) {
+          const cm_x  = (ma_c * sim.xa + mb_c * sim.xb) / M;
+          const mu    = ma_c * mb_c / M; // reduced mass of the pair
+          const E_int = 0.5 * mu * (sim.vb - sim.va) ** 2
+                      + 0.5 * p.k2 * ((sim.xb - sim.xa) - p.L2) ** 2;
+          const xb_max = cm_x + (ma_c / M) * (p.L2 + Math.sqrt(2 * E_int / p.k2));
+          const ext1c  = (ANCHOR - sim.x1) - p.L1;
+          const E_m1   = 0.5 * p.m1 * sim.v1 ** 2 + 0.5 * p.k1 * ext1c ** 2 + 0.25 * p.b1 * ext1c ** 4;
+          // turning point of ½k1·A² + ¼b1·A⁴ = E_m1 (stable form; → √(2E/k1) as b1→0)
+          const A1     = Math.sqrt(4 * E_m1 / (p.k1 + Math.sqrt(p.k1 * p.k1 + 4 * p.b1 * E_m1)));
+          const x1_min = (ANCHOR - p.L1) - A1;
+          if (xb_max < x1_min) {
+            const E_cm = 0.5 * M * v_cm ** 2;
+            result = {
+              E_m1,
+              E_pair: E_cm + E_int,
+              E_cm,
+              E_int,
+              E_tot,
+              nColl,
+            };
+            break;
+          }
+        }
+      }
+    }
+
+    for (const k in overrides) p[k] = saved[k];
+    return result;
+  }
+
+  // DISPLAY-ONLY label swap (2026-06-09): internal m1/k1/L1/b1/T1 = the ANCHORED system,
+  // shown to the user as m₂/k₂/L₂/β₂/T₂; internal m2/k2/L2/T2 = the MOVING system, shown
+  // as m₁/k₁/L₁/T₁. Code/IDs/physics keep the old names — only labels are swapped.
+  const PARAM_LABELS = { m1:'m₂', m2:'m₁', k1:'k₂', k2:'k₁', v:'v', L1:'L₂', L2:'L₁', split:'mB/m₁', cor:'e', b1:'β₂', T1:'T₂', T2:'T₁' };
+  const PARAM_UNITS  = { m1:'kg',  m2:'kg',  k1:'N/m', k2:'N/m', v:'m/s', L1:'m', L2:'m', split:'', cor:'', b1:'N/m³', T1:'s', T2:'s' };
+
+  function renderSweepTable(paramKey, rows, dt, hideKey) {
+    const lbl  = PARAM_LABELS[paramKey] || paramKey;
+    const unit = PARAM_UNITS[paramKey]  || '';
+    const ctx  = Object.entries(p)
+      .filter(([k]) => k !== paramKey && k !== hideKey)
+      .map(([k, v]) => `${PARAM_LABELS[k] || k}=${v}`)
+      .join('  ');
+
+    const fmt = x => Number.isFinite(x) ? x.toPrecision(13) : '—';
+
+    const series = [
+      { col: SC1, lbl: 'E<sub>m2</sub>'  },
+      { col: SC2, lbl: 'E<sub>int</sub>' },
+      { col: SC3, lbl: 'E<sub>cm</sub>'  },
+      { col: SC4, lbl: 'Collisions'      },
+    ];
+
+    _sweepVis = [false, false, true, false];   // start each sweep with only E_cm shown
+    let html = `<p class="sw-ctx">Fixed: ${ctx} &nbsp;|&nbsp; dt = ${dt} s</p>
+<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">
+${series.map((s,i) => `<button class="sw-toggle" data-i="${i}" style="border-color:${s.col};color:${s.col};opacity:${_sweepVis[i] ? 1 : 0.3};">${s.lbl}</button>`).join('')}
+</div>
+<canvas id="sw-chart" title="Click to inspect values at a point" style="width:100%;height:240px;border-radius:6px;margin-bottom:4px;cursor:pointer;"></canvas>
+<p class="sw-ctx" style="margin:0 0 10px;opacity:0.7;">Click the chart to inspect all values at a point (click again to dismiss).</p>`;
+
+    // full per-point data table — every swept point's energy fractions
+    html += `<table>
+<thead><tr>
+  <th>${lbl}${unit ? ' (' + unit + ')' : ''}</th>
+  <th>E<sub>m2</sub>/E<sub>tot</sub></th>
+  <th>E<sub>cm</sub>/E<sub>tot</sub></th>
+  <th>E<sub>int</sub>/E<sub>tot</sub></th>
+  <th>Collisions</th>
+</tr></thead><tbody>`;
+    for (const { val, E_m1, E_cm, E_int, E_tot, nColl } of rows) {
+      const vs = parseFloat(val.toPrecision(7)).toString();
+      const nc = isNaN(E_m1);
+      html += `<tr>
+        <td>${vs}</td>
+        <td>${nc ? '—  (no collision)' : fmt(E_m1 / E_tot)}</td>
+        <td>${nc ? '—' : fmt(E_cm / E_tot)}</td>
+        <td>${nc ? '—' : fmt(E_int / E_tot)}</td>
+        <td>${nc ? '—' : nColl}</td>
+      </tr>`;
+    }
+    html += `</tbody></table>`;
+
+    // local minima / maxima of E_cm along the sweep (each finite point vs its
+    // finite-E_cm neighbours; no-collision rows are skipped, interior points only)
+    const pts = rows.filter(r => isFinite(r.E_cm));
+
+    // vertex of the parabola through three points → { x, y, a }  (a = leading coeff)
+    const vertex3 = (x1, y1, x2, y2, x3, y3) => {
+      const d = (x1 - x2) * (x1 - x3) * (x2 - x3);
+      if (d === 0) return null;
+      const a = (x3 * (y2 - y1) + x2 * (y1 - y3) + x1 * (y3 - y2)) / d;
+      if (a === 0) return null;
+      const b = (x1*x1 * (y2 - y3) + x2*x2 * (y3 - y1) + x3*x3 * (y1 - y2)) / d;
+      const x = -b / (2 * a);
+      return { x, y: y2 - a * (x2 - x) * (x2 - x), a };
+    };
+
+    // refine a grid extremum at pts[i] by 3-point parabolic interpolation; falls back
+    // to the raw grid point if the fit has the wrong concavity or lands off-bracket
+    const refine = (i, wantMax) => {
+      const L = pts[i - 1], C = pts[i], Rr = pts[i + 1];
+      const v = vertex3(L.val, L.E_cm, C.val, C.E_cm, Rr.val, Rr.E_cm);
+      const lo = Math.min(L.val, Rr.val), hi = Math.max(L.val, Rr.val);
+      if (!v || (wantMax ? v.a >= 0 : v.a <= 0) || v.x < lo || v.x > hi)
+        return { val: C.val, E_cm: C.E_cm, E_tot: C.E_tot, fit: false };
+      const t = (v.x - L.val) / (Rr.val - L.val);   // E_tot ≈ linear across the bracket
+      return { val: v.x, E_cm: v.y, E_tot: L.E_tot + (Rr.E_tot - L.E_tot) * t, fit: true };
+    };
+
+    const minima = [], maxima = [];
+    for (let i = 1; i < pts.length - 1; i++) {
+      const e = pts[i].E_cm, a = pts[i - 1].E_cm, b = pts[i + 1].E_cm;
+      if (e < a && e < b) minima.push(refine(i, false));
+      else if (e > a && e > b) maxima.push(refine(i, true));
+    }
+    const extremaTable = (title, list) => {
+      let h = `<p style="margin:16px 0 6px;font-weight:600;color:var(--text);">${title} (${list.length})</p>`;
+      if (!list.length) return h + `<p class="sw-ctx" style="margin:0;">none</p>`;
+      h += `<table><thead><tr>
+  <th>${lbl}${unit ? ' (' + unit + ')' : ''}</th>
+  <th>E<sub>cm</sub> (J)</th>
+  <th>E<sub>cm</sub>/E<sub>tot</sub></th>
+</tr></thead><tbody>`;
+      for (const r of list)
+        h += `<tr><td>${fmt(r.val)}${r.fit ? '' : ' *'}</td><td>${fmt(r.E_cm)}</td><td>${fmt(r.E_cm / r.E_tot)}</td></tr>`;
+      h += `</tbody></table>`;
+      if (list.some(r => !r.fit))
+        h += `<p class="sw-ctx" style="margin:4px 0 0;opacity:0.7;">* raw grid value — parabolic fit rejected (wrong concavity or vertex off-bracket)</p>`;
+      return h;
+    };
+    html += extremaTable('E<sub>cm</sub> local minima · parabola-refined', minima);
+    html += extremaTable('E<sub>cm</sub> local maxima · parabola-refined', maxima);
+
+    _sweepKey = paramKey; _sweepRows = rows;
+    _sweepSel = null;
+    document.getElementById('sw-results').innerHTML = html;
+
+    document.querySelectorAll('.sw-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const i = +btn.dataset.i;
+        _sweepVis[i] = !_sweepVis[i];
+        btn.style.opacity = _sweepVis[i] ? '1' : '0.3';
+        drawSweepCharts(_sweepKey, _sweepRows);
+      });
+    });
+
+    const swCanvas = document.getElementById('sw-chart');
+    swCanvas.addEventListener('click', (e) => {
+      if (!_sweepGeom || !_sweepRows) return;
+      const rect = swCanvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const { left, pw, xMin, xSpan } = _sweepGeom;
+      if (cx < left - 12 || cx > left + pw + 12) return; // outside the plot area
+      const dataX = xMin + (cx - left) / pw * xSpan;
+      let best = null, bestD = Infinity;
+      for (const r of _sweepRows) {
+        if (!isFinite(r.val)) continue;
+        const d = Math.abs(r.val - dataX);
+        if (d < bestD) { bestD = d; best = r; }
+      }
+      if (!best) return;
+      const showing = (_sweepSel !== best.val); // toggle: clicking the same point dismisses
+      _sweepSel = showing ? best.val : null;
+      drawSweepCharts(_sweepKey, _sweepRows);
+      if (showing) {  // load this swept value into the live sim (like the heatmap click)
+        _suppressReconcile = true;
+        setParam(_sweepKey, best.val);
+        _suppressReconcile = false;
+        seedPeriodInputs(); // keep the T sliders consistent with the loaded m/k/split
+        playing = false;
+        if (animId) { cancelAnimationFrame(animId); animId = null; }
+        document.getElementById('btn-play').textContent = '▶ Play';
+        s = freshState();
+        render(); updateStatus(); saveState();
+      }
+    });
+
+    requestAnimationFrame(() => drawSweepCharts(paramKey, rows));
+  }
+
+  function drawSweepCharts(paramKey, rows) {
+    const canvas = document.getElementById('sw-chart');
+    if (!canvas) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const W = canvas.offsetWidth, H = canvas.offsetHeight;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const vis = _sweepVis;
+
+    // Each visible series gets its own auto-scaled y-axis, packed against the plot's left
+    // edge (hidden series take no slot). series order: 0 E_m2 1 E_int 2 E_cm 3 Collisions.
+    const SLOT = 62;
+    const allPts = [
+      rows.map(r => ({ x: r.val, y: r.E_m1  / r.E_tot })),
+      rows.map(r => ({ x: r.val, y: r.E_int / r.E_tot })),
+      rows.map(r => ({ x: r.val, y: r.E_cm  / r.E_tot })),
+      rows.map(r => ({ x: r.val, y: r.nColl           })),
+    ].map(pts => pts.filter(p => isFinite(p.x) && isFinite(p.y)));
+    const visList = [0, 1, 2, 3].filter(si => vis[si] && allPts[si].length); // axes, plot-edge → left
+    const PAD = { top: 24, right: 18, bottom: 46, left: Math.max(1, visList.length) * SLOT + 8 };
+    const pw = W - PAD.left - PAD.right;
+    const ph = H - PAD.top  - PAD.bottom;
+    const axX = si => PAD.left - visList.indexOf(si) * SLOT; // a visible series' axis x (packed)
+
+    const allX = allPts.flat().map(p => p.x);
+    if (!allX.length) return;
+    const [xMin, xMax] = minMax(allX);
+    const xSpan = xMax - xMin || 1;
+    const sx = x => PAD.left + (x - xMin) / xSpan * pw;
+    _sweepGeom = { left: PAD.left, pw, xMin, xSpan };
+
+    const mkAxis = pts => {
+      if (!pts.length) return { yLo:0, yHi:1, sy: y => PAD.top + ph*(1-y) };
+      const vs = pts.map(p => p.y);
+      const [lo, hi] = minMax(vs);
+      const sp = hi - lo || Math.abs(hi) || 1;
+      const yLo = lo - sp*0.08, yHi = hi + sp*0.08;
+      return { yLo, yHi, sy: y => PAD.top + ph*(1-(y-yLo)/(yHi-yLo)) };
+    };
+    const axes = allPts.map(mkAxis);   // one auto-scaled axis per series
+    const SCOL = [SC1, SC2, SC3, SC4]; // series colours, by index
+
+    // draw "E" + subscript, rotated to read bottom-to-top, centred at (x, cy)
+    const drawSubLabel = (sub, x, cy, col) => {
+      ctx.save();
+      ctx.fillStyle = col;
+      ctx.translate(x, cy); ctx.rotate(-Math.PI / 2);
+      ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      ctx.font = '11px sans-serif'; const wB = ctx.measureText('E').width;
+      ctx.font = '8px sans-serif';  const wS = ctx.measureText(sub).width;
+      const x0 = -(wB + wS) / 2;
+      ctx.font = '11px sans-serif'; ctx.fillText('E', x0, 0);
+      ctx.font = '8px sans-serif';  ctx.fillText(sub, x0 + wB, 3);
+      ctx.restore();
+    };
+
+    // background
+    ctx.fillStyle = '#0d1117';
+    ctx.fillRect(0, 0, W, H);
+
+    // horizontal grid; each axis maps the same gridlines onto its own scale,
+    // labelled in that series' colour.
+    const N_Y = 5;
+    ctx.font = '10px monospace'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+    for (let i = 0; i <= N_Y; i++) {
+      const frac = i / N_Y;
+      const cy = PAD.top + ph * (1 - frac);
+      ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(PAD.left, cy); ctx.lineTo(PAD.left + pw, cy); ctx.stroke();
+      for (let si = 0; si < 4; si++) {
+        if (!vis[si] || !allPts[si].length) continue;
+        const yv = axes[si].yLo + frac * (axes[si].yHi - axes[si].yLo);
+        ctx.fillStyle = SCOL[si];
+        ctx.fillText(parseFloat(yv.toPrecision(3)), axX(si) - 4, cy);
+      }
+    }
+
+    // x grid + labels
+    const refPts = allPts.find(p => p.length) || [];
+    const step = Math.ceil(refPts.length / Math.min(refPts.length||1, 8));
+    refPts.forEach((p, i) => {
+      if (i % step !== 0 && i !== refPts.length-1) return;
+      const cx = sx(p.x);
+      ctx.strokeStyle = '#21262d'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, PAD.top); ctx.lineTo(cx, PAD.top+ph); ctx.stroke();
+      ctx.fillStyle = '#6e7681'; ctx.font = '10px monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      ctx.fillText(parseFloat(p.x.toPrecision(3)), cx, PAD.top+ph+4);
+    });
+
+    // axis lines: plot box (left edge = the first visible axis, plus bottom + right),
+    // then every other visible axis to its left in its own colour.
+    ctx.strokeStyle = '#484f58'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(PAD.left, PAD.top); ctx.lineTo(PAD.left, PAD.top+ph);
+    ctx.lineTo(PAD.left+pw, PAD.top+ph); ctx.lineTo(PAD.left+pw, PAD.top);
+    ctx.stroke();
+    for (const si of visList) {
+      if (axX(si) === PAD.left) continue;   // the first visible axis is the box's left edge
+      ctx.strokeStyle = SCOL[si]; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(axX(si), PAD.top); ctx.lineTo(axX(si), PAD.top+ph); ctx.stroke();
+    }
+
+    // draw visible series
+    [[0,SC1],[1,SC2],[2,SC3],[3,SC4]].forEach(([si, col]) => {
+      if (!vis[si] || !allPts[si].length) return;
+      const pts = allPts[si], sy = axes[si].sy;
+      ctx.beginPath(); ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+      pts.forEach((p, i) => i===0 ? ctx.moveTo(sx(p.x),sy(p.y)) : ctx.lineTo(sx(p.x),sy(p.y)));
+      ctx.stroke();
+      pts.forEach(p => {
+        ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 1, 0, Math.PI*2);
+        ctx.fillStyle = col; ctx.fill();
+      });
+    });
+
+    // energy-axis titles: an "E" + subscript label in each axis' own slot
+    [[0,'m2',SC1],[1,'int',SC2],[2,'cm',SC3]].forEach(([si, sub, col]) => {
+      if (!vis[si] || !allPts[si].length) return;
+      drawSubLabel(sub, axX(si) - SLOT + 14, PAD.top + ph/2, col);
+    });
+    // collisions-axis title
+    if (vis[3] && allPts[3].length) {
+      ctx.save();
+      ctx.fillStyle = SC4; ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.translate(axX(3) - SLOT + 14, PAD.top + ph/2); ctx.rotate(-Math.PI/2);
+      ctx.fillText('Collisions', 0, 0);
+      ctx.restore();
+    }
+
+    // x-axis label
+    ctx.fillStyle = '#8b949e'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    const xLabel = (PARAM_LABELS[paramKey]||paramKey) +
+                   (PARAM_UNITS[paramKey] ? ` (${PARAM_UNITS[paramKey]})` : '');
+    ctx.fillText(xLabel, PAD.left+pw/2, H-2);
+
+    // ── click-to-inspect overlay ─────────────────────────────────────────────
+    if (_sweepSel != null) {
+      const row = rows.find(r => r.val === _sweepSel);
+      if (row && isFinite(sx(row.val))) {
+        const cx = sx(row.val);
+        const fmtV = x => !isFinite(x) ? '—'
+          : (x !== 0 && (Math.abs(x) >= 1e4 || Math.abs(x) < 1e-3))
+            ? x.toExponential(3)
+            : parseFloat(x.toPrecision(5)).toString();
+
+        // vertical guide line
+        ctx.strokeStyle = '#8b949e'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(cx, PAD.top); ctx.lineTo(cx, PAD.top + ph); ctx.stroke();
+        ctx.setLineDash([]);
+
+        const seriesVals = [
+          { col: SC1, name: 'E_m2/E_tot',  y: row.E_m1  / row.E_tot, ai: 0 },
+          { col: SC2, name: 'E_int/E_tot', y: row.E_int / row.E_tot, ai: 1 },
+          { col: SC3, name: 'E_cm/E_tot',  y: row.E_cm  / row.E_tot, ai: 2 },
+          { col: SC4, name: 'Collisions',  y: row.nColl,             ai: 3 },
+        ];
+
+        // highlight markers on the visible series
+        seriesVals.forEach((s, si) => {
+          if (!vis[si] || !isFinite(s.y)) return;
+          const cy = axes[s.ai].sy(s.y);
+          ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+          ctx.fillStyle = s.col; ctx.fill();
+          ctx.strokeStyle = '#0d1117'; ctx.lineWidth = 1.5; ctx.stroke();
+        });
+
+        // overlay box: x-value plus every plotted value (hidden series dimmed)
+        const lines = [
+          { txt: `${xLabel} = ${fmtV(row.val)}`, col: '#e6edf3', dim: false },
+          ...seriesVals.map((s, si) => ({
+            txt: `${s.name} = ${fmtV(s.y)}`, col: s.col, dim: !vis[si],
+          })),
+        ];
+        ctx.font = '11px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+        const lineH = 15, padB = 8;
+        const boxW = Math.max(...lines.map(l => ctx.measureText(l.txt).width)) + padB * 2;
+        const boxH = lines.length * lineH + padB * 2 - 3;
+        let bx = cx + 12;
+        if (bx + boxW > PAD.left + pw) bx = cx - 12 - boxW; // flip left if no room on the right
+        if (bx < PAD.left + 2) bx = PAD.left + 2;
+        const by = PAD.top + 6;
+
+        ctx.fillStyle = 'rgba(13,17,23,0.92)';
+        ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(bx, by, boxW, boxH, 5); ctx.fill(); ctx.stroke();
+
+        lines.forEach((l, i) => {
+          ctx.globalAlpha = l.dim ? 0.4 : 1;
+          ctx.fillStyle = l.col;
+          ctx.fillText(l.txt, bx + padB, by + padB + i * lineH);
+        });
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  // ── 2D sweep: heat map ───────────────────────────────────────────────────
+  // One quantity shown at a time; switch with the buttons above the map.
+  const HEAT_OUTPUTS = [
+    { name: 'E_m2/E_tot',  fn: r => r.E_m1  / r.E_tot },
+    { name: 'E_cm/E_tot',  fn: r => r.E_cm  / r.E_tot },
+    { name: 'E_int/E_tot', fn: r => r.E_int / r.E_tot },
+    { name: 'Collisions',  fn: r => r.nColl },
+  ];
+
+  // standard heat-map colour ramps (approximate stops, interpolated in heatColor)
+  const PALETTES = {
+    Viridis:   [[68,1,84],[59,82,139],[33,145,140],[94,201,98],[253,231,37]],
+    Magma:     [[0,0,4],[80,18,123],[182,54,121],[252,137,97],[252,253,191]],
+    Inferno:   [[0,0,4],[87,16,110],[188,55,84],[249,142,9],[252,255,164]],
+    Plasma:    [[13,8,135],[126,3,168],[204,71,120],[248,149,64],[240,249,33]],
+    Turbo:     [[48,18,59],[33,144,255],[27,229,181],[165,249,48],[251,155,38],[122,4,3]],
+    Grayscale: [[20,20,20],[245,245,245]],
+  };
+  function heatColor(t, stops) {
+    t = Math.max(0, Math.min(1, t));
+    const n = stops.length, s = t * (n - 1);
+    const i = Math.min(n - 2, Math.floor(s));
+    const f = s - i, a = stops[i], b = stops[i + 1];
+    return `rgb(${Math.round(a[0]+(b[0]-a[0])*f)},${Math.round(a[1]+(b[1]-a[1])*f)},${Math.round(a[2]+(b[2]-a[2])*f)})`;
+  }
+
+  // switch which output the heat map shows, remembering each output's colour range
+  function selectHeatOut(i){
+    if (i === _heatOut || i < 0 || i >= HEAT_OUTPUTS.length || !_heatRanges[_heatOut]) return;
+    _heatRanges[_heatOut] = { vmin: _heatVmin, vmax: _heatVmax };  // stash current
+    _heatOut = i;
+    const r = _heatRanges[i] || { vmin: null, vmax: null };        // restore target's
+    _heatVmin = r.vmin; _heatVmax = r.vmax;
+    const minIn = document.getElementById('heat-min'), maxIn = document.getElementById('heat-max');
+    if (minIn) minIn.value = _heatVmin != null ? _heatVmin : '';   // '' lets drawHeatmap fill the auto value
+    if (maxIn) maxIn.value = _heatVmax != null ? _heatVmax : '';
+    document.querySelectorAll('.sw-out').forEach(b => b.classList.toggle('active', +b.dataset.i === _heatOut));
+    drawHeatmap();
+  }
+  // number keys 1..N pick the heat-map output (when a heat map is showing, not while typing)
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if (!document.getElementById('sw-heat')) return;
+    if (e.key >= '1' && e.key <= '9') {
+      const n = +e.key - 1;
+      if (n < HEAT_OUTPUTS.length) { selectHeatOut(n); e.preventDefault(); }
+    }
+  });
+
+  function renderHeatmap(data) {
+    _heatData = data; _heatSel = null;
+    _heatVmin = _heatVmax = null;   // new sweep → auto colour range
+    _heatRanges = HEAT_OUTPUTS.map(() => ({ vmin: null, vmax: null })); // fresh per-output ranges
+    _heatExtrema = null;            // recompute extrema for the new data
+    if (_heatOut >= HEAT_OUTPUTS.length) _heatOut = 0;
+
+    const hide = data.hide || [];
+    const fixed = Object.entries(p)
+      .filter(([k]) => k !== data.px && k !== data.py && !hide.includes(k))
+      .map(([k, v]) => `${PARAM_LABELS[k] || k}=${v}`).join('  ');
+    const lblX = PARAM_LABELS[data.px] || data.px;
+    const lblY = PARAM_LABELS[data.py] || data.py;
+    const btns = HEAT_OUTPUTS.map((o, i) =>
+      `<button class="sw-out${i === _heatOut ? ' active' : ''}" data-i="${i}" title="shortcut: press ${i + 1}"><span style="opacity:0.5;">${i + 1}</span> ${o.name}</button>`).join('');
+    const palOpts = Object.keys(PALETTES).map(n =>
+      `<option value="${n}"${n === _heatPalette ? ' selected' : ''}>${n}</option>`).join('');
+
+    document.getElementById('sw-results').innerHTML =
+      `<p class="sw-ctx">Fixed: ${fixed}</p>
+<div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;">${btns}</div>
+<div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;font-size:0.78rem;color:var(--dim);">
+  <label>palette <select id="heat-pal">${palOpts}</select></label>
+  <label>min <input type="number" id="heat-min" step="any" style="width:84px"></label>
+  <label>max <input type="number" id="heat-max" step="any" style="width:84px"></label>
+  <button id="heat-auto" style="font-size:0.72rem;padding:2px 10px;background:transparent;border-color:var(--border);color:var(--text);">Auto</button>
+  <label style="margin-left:4px;"><input type="checkbox" id="heat-extrema"${_heatHighlight ? ' checked' : ''}> highlight extrema <span style="opacity:0.65;">(○ max ● min)</span></label>
+</div>
+<canvas id="sw-heat" style="width:100%;border-radius:6px;cursor:crosshair;"></canvas>
+<p class="sw-ctx" style="margin:6px 0 0;opacity:0.7;">${lblX} (x) vs ${lblY} (y) — hover to read a cell; click to load it into the sim; drag a box to set the sweep range (then Run).</p>`;
+
+    document.querySelectorAll('.sw-out').forEach(btn => {
+      btn.addEventListener('click', () => selectHeatOut(+btn.dataset.i));
+    });
+
+    const palSel = document.getElementById('heat-pal');
+    palSel.addEventListener('change', () => { _heatPalette = palSel.value; drawHeatmap(); });
+    const minIn = document.getElementById('heat-min'), maxIn = document.getElementById('heat-max');
+    minIn.addEventListener('change', () => { const v = parseFloat(minIn.value); _heatVmin = isFinite(v) ? v : null; _heatRanges[_heatOut].vmin = _heatVmin; drawHeatmap(); });
+    maxIn.addEventListener('change', () => { const v = parseFloat(maxIn.value); _heatVmax = isFinite(v) ? v : null; _heatRanges[_heatOut].vmax = _heatVmax; drawHeatmap(); });
+    document.getElementById('heat-auto').addEventListener('click', () => { _heatVmin = _heatVmax = null; _heatRanges[_heatOut] = { vmin: null, vmax: null }; drawHeatmap(); });
+    document.getElementById('heat-extrema').addEventListener('change', e => { _heatHighlight = e.target.checked; drawHeatmap(); });
+
+    const canvas = document.getElementById('sw-heat');
+    const relPos = e => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    const cellAt = (x, y) => {
+      const g = _heatGeom; if (!g) return null;
+      const i = Math.floor((x - g.left) / g.cellW);
+      const j = Math.floor((g.top + g.ph - y) / g.cellH);
+      return (i >= 0 && i < g.nx && j >= 0 && j < g.ny) ? { i, j } : null;
+    };
+
+    // click a cell → load its X/Y values into the live simulation
+    const loadCell = (i, j) => {
+      _suppressReconcile = true;
+      // if X is a period coupled to its m/k input on Y, set the input first so the
+      // period derives its driven var from the updated value
+      if ((data.px === 'T1' || data.px === 'T2') && periodInput(data.px) === data.py) {
+        setParam(data.py, data.ys[j]); setParam(data.px, data.xs[i]);
+      } else {
+        setParam(data.px, data.xs[i]); setParam(data.py, data.ys[j]);
+      }
+      _suppressReconcile = false;
+      seedPeriodInputs(); // keep the T sliders consistent with the loaded m/k/split
+      playing = false;
+      if (animId) { cancelAnimationFrame(animId); animId = null; }
+      document.getElementById('btn-play').textContent = '▶ Play';
+      s = freshState();
+      render(); updateStatus(); saveState();
+      document.getElementById('sim-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    // drag a rectangle → load its bounds into the sweep X/Y range boxes (does NOT run)
+    const applyDragRange = d => {
+      const g = _heatGeom; if (!g) return;
+      const ci = x => Math.max(0, Math.min(g.nx - 1, Math.floor((x - g.left) / g.cellW)));
+      const cj = y => Math.max(0, Math.min(g.ny - 1, Math.floor((g.top + g.ph - y) / g.cellH)));
+      const iLo = Math.min(ci(d.x0), ci(d.x1)), iHi = Math.max(ci(d.x0), ci(d.x1));
+      const jLo = Math.min(cj(d.y0), cj(d.y1)), jHi = Math.max(cj(d.y0), cj(d.y1));
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = parseFloat(v.toPrecision(6)); };
+      set('sw-start',  data.xs[iLo]); set('sw-end',  data.xs[iHi]);   // X axis (sw-param)
+      set('sw-start2', data.ys[jLo]); set('sw-end2', data.ys[jHi]);   // Y axis (sw-param2)
+      saveState();
+      const st = document.getElementById('sw-status');
+      if (st) st.textContent = 'range set from selection — adjust steps/dt and Run';
+    };
+
+    canvas.addEventListener('mousemove', e => {
+      if (!_heatGeom) return;
+      const { x, y } = relPos(e);
+      if (_heatDrag) { _heatDrag.x1 = x; _heatDrag.y1 = y; drawHeatmap(); return; }
+      const sel = cellAt(x, y);
+      const same = sel && _heatSel && sel.i === _heatSel.i && sel.j === _heatSel.j;
+      if (!same && !(sel === null && _heatSel === null)) { _heatSel = sel; drawHeatmap(); }
+    });
+    canvas.addEventListener('mouseleave', () => {
+      if (_heatDrag) { _heatDrag = null; drawHeatmap(); }
+      else if (_heatSel) { _heatSel = null; drawHeatmap(); }
+    });
+    canvas.addEventListener('mousedown', e => {
+      if (!_heatGeom || e.button !== 0) return;
+      const { x, y } = relPos(e);
+      _heatDrag = { x0: x, y0: y, x1: x, y1: y }; _heatSel = null;
+      e.preventDefault();
+    });
+    canvas.addEventListener('mouseup', () => {
+      if (!_heatDrag) return;
+      const d0 = _heatDrag; _heatDrag = null;
+      const moved = Math.abs(d0.x1 - d0.x0) > 4 || Math.abs(d0.y1 - d0.y0) > 4;
+      if (moved) { applyDragRange(d0); drawHeatmap(); return; }
+      const c = cellAt(d0.x0, d0.y0);    // negligible movement → treat as a click
+      if (c) loadCell(c.i, c.j); else drawHeatmap();
+    });
+
+    requestAnimationFrame(drawHeatmap);
+  }
+
+  function drawHeatmap() {
+    const d = _heatData; if (!d) return;
+    const canvas = document.getElementById('sw-heat'); if (!canvas) return;
+    const out = HEAT_OUTPUTS[_heatOut];
+
+    const dpr = window.devicePixelRatio || 1;
+    const PAD = { top: 14, right: 92, bottom: 50, left: 72 };
+    const W = canvas.offsetWidth;
+    const pw = W - PAD.left - PAD.right;        // square plot region
+    const ph = pw;
+    const H = ph + PAD.top + PAD.bottom;
+    canvas.style.height = H + 'px';
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    const ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+
+    const nx = d.xs.length, ny = d.ys.length;
+    let amin = Infinity, amax = -Infinity;
+    const vals = d.cells.map(c => {
+      const v = c ? out.fn(c) : NaN;
+      if (!isFinite(v)) return NaN;
+      if (v < amin) amin = v;
+      if (v > amax) amax = v;
+      return v;
+    });
+    if (amin > amax) { amin = 0; amax = 1; }   // no finite cells
+    if (amin === amax) amax = amin + 1;
+    // reflect the auto range in the input boxes (only while not manually overridden)
+    const minEl = document.getElementById('heat-min'), maxEl = document.getElementById('heat-max');
+    if (minEl && _heatVmin == null) minEl.value = parseFloat(amin.toPrecision(4));
+    if (maxEl && _heatVmax == null) maxEl.value = parseFloat(amax.toPrecision(4));
+    let vmin = (_heatVmin != null) ? _heatVmin : amin;
+    let vmax = (_heatVmax != null) ? _heatVmax : amax;
+    if (vmin === vmax) vmax = vmin + 1;
+    const stops = PALETTES[_heatPalette] || PALETTES.Viridis;
+
+    const cellW = pw / nx, cellH = ph / ny;
+    _heatGeom = { left: PAD.left, top: PAD.top, ph, cellW, cellH, nx, ny };
+
+    ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+
+    // cells (row j stored bottom→top so larger y plots higher)
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const v = vals[j * nx + i];
+      const cx = PAD.left + i * cellW;
+      const cy = PAD.top + (ny - 1 - j) * cellH;
+      ctx.fillStyle = isFinite(v) ? heatColor((v - vmin) / (vmax - vmin), stops) : '#1c2128';
+      ctx.fillRect(cx, cy, cellW + 0.6, cellH + 0.6);
+    }
+
+    // local maxima / minima markers (strict vs the 8 neighbours; no-data ignored)
+    if (_heatHighlight) {
+      if (!_heatExtrema || _heatExtremaFor !== _heatOut) {
+        _heatExtrema = []; _heatExtremaFor = _heatOut;
+        for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+          const v = vals[j * nx + i];
+          if (!isFinite(v)) continue;
+          let isMax = true, isMin = true, hasNb = false;
+          for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+            if (di === 0 && dj === 0) continue;
+            const ni = i + di, nj = j + dj;
+            if (ni < 0 || ni >= nx || nj < 0 || nj >= ny) continue;
+            const nv = vals[nj * nx + ni];
+            if (!isFinite(nv)) continue;
+            hasNb = true;
+            if (nv >= v) isMax = false;
+            if (nv <= v) isMin = false;
+          }
+          if (hasNb && (isMax || isMin)) _heatExtrema.push({ i, j, max: isMax });
+        }
+      }
+      const rr = Math.max(1.5, Math.min(cellW, cellH) * 0.42);
+      ctx.lineWidth = 1;
+      for (const e of _heatExtrema) {
+        const cx = PAD.left + (e.i + 0.5) * cellW;
+        const cy = PAD.top + (ny - 1 - e.j + 0.5) * cellH;
+        ctx.beginPath(); ctx.arc(cx, cy, rr, 0, Math.PI * 2);
+        ctx.fillStyle = e.max ? '#fff' : '#000'; ctx.fill();
+        ctx.strokeStyle = e.max ? '#000' : '#fff'; ctx.stroke();
+      }
+    }
+
+    // hovered-cell highlight
+    if (_heatSel) {
+      const cx = PAD.left + _heatSel.i * cellW;
+      const cy = PAD.top + (ny - 1 - _heatSel.j) * cellH;
+      ctx.strokeStyle = '#e6edf3'; ctx.lineWidth = 2;
+      ctx.strokeRect(cx + 1, cy + 1, cellW - 2, cellH - 2);
+    }
+
+    // drag-selection rectangle (clamped to the plot)
+    if (_heatDrag) {
+      const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      const L = PAD.left, T = PAD.top, R = PAD.left + pw, B = PAD.top + ph;
+      const ax = cl(Math.min(_heatDrag.x0, _heatDrag.x1), L, R), bx = cl(Math.max(_heatDrag.x0, _heatDrag.x1), L, R);
+      const ay = cl(Math.min(_heatDrag.y0, _heatDrag.y1), T, B), by = cl(Math.max(_heatDrag.y0, _heatDrag.y1), T, B);
+      ctx.fillStyle = 'rgba(230,237,243,0.12)'; ctx.fillRect(ax, ay, bx - ax, by - ay);
+      ctx.setLineDash([5, 3]); ctx.strokeStyle = '#e6edf3'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(ax, ay, bx - ax, by - ay); ctx.setLineDash([]);
+    }
+
+    // plot border
+    ctx.strokeStyle = '#484f58'; ctx.lineWidth = 1;
+    ctx.strokeRect(PAD.left, PAD.top, pw, ph);
+
+    // x ticks
+    ctx.fillStyle = '#8b949e'; ctx.font = '10px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const xStride = Math.ceil(nx / 8);
+    for (let i = 0; i < nx; i++) {
+      if (i % xStride && i !== nx - 1) continue;
+      ctx.fillText(parseFloat(d.xs[i].toPrecision(3)), PAD.left + (i + 0.5) * cellW, PAD.top + ph + 5);
+    }
+    // y ticks
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    const yStride = Math.ceil(ny / 8);
+    for (let j = 0; j < ny; j++) {
+      if (j % yStride && j !== ny - 1) continue;
+      ctx.fillText(parseFloat(d.ys[j].toPrecision(3)), PAD.left - 6, PAD.top + (ny - 1 - j + 0.5) * cellH);
+    }
+
+    // axis titles
+    const tX = (PARAM_LABELS[d.px] || d.px) + (PARAM_UNITS[d.px] ? ` (${PARAM_UNITS[d.px]})` : '');
+    const tY = (PARAM_LABELS[d.py] || d.py) + (PARAM_UNITS[d.py] ? ` (${PARAM_UNITS[d.py]})` : '');
+    ctx.fillStyle = '#c9d1d9'; ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(tX, PAD.left + pw / 2, H - 2);
+    ctx.save();
+    ctx.translate(12, PAD.top + ph / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textBaseline = 'top'; ctx.fillText(tY, 0, 0);
+    ctx.restore();
+
+    // colour bar
+    const cbX = W - PAD.right + 20, cbW = 13;
+    const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + ph);
+    for (let s = 0; s <= 10; s++) grad.addColorStop(s / 10, heatColor(1 - s / 10, stops));
+    ctx.fillStyle = grad; ctx.fillRect(cbX, PAD.top, cbW, ph);
+    ctx.strokeStyle = '#484f58'; ctx.lineWidth = 1; ctx.strokeRect(cbX, PAD.top, cbW, ph);
+    ctx.fillStyle = '#8b949e'; ctx.font = '10px monospace';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(parseFloat(vmax.toPrecision(3)), cbX + cbW + 4, PAD.top);
+    ctx.fillText(parseFloat(vmin.toPrecision(3)), cbX + cbW + 4, PAD.top + ph);
+
+    // tooltip for hovered cell
+    if (_heatSel) {
+      const c = d.cells[_heatSel.j * nx + _heatSel.i];
+      const v = c ? out.fn(c) : NaN;
+      const fmtV = x => !isFinite(x) ? 'no collision'
+        : (x !== 0 && (Math.abs(x) >= 1e4 || Math.abs(x) < 1e-3)) ? x.toExponential(3)
+        : parseFloat(x.toPrecision(5)).toString();
+      const lines = [
+        `${PARAM_LABELS[d.px] || d.px} = ${parseFloat(d.xs[_heatSel.i].toPrecision(5))}`,
+        `${PARAM_LABELS[d.py] || d.py} = ${parseFloat(d.ys[_heatSel.j].toPrecision(5))}`,
+        `${out.name} = ${fmtV(v)}`,
+      ];
+      ctx.font = '11px monospace';
+      const padB = 7, lineH = 15;
+      const bw = Math.max(...lines.map(l => ctx.measureText(l).width)) + padB * 2;
+      const bh = lines.length * lineH + padB * 2 - 3;
+      const ccx = PAD.left + (_heatSel.i + 0.5) * cellW;
+      const ccy = PAD.top + (ny - 1 - _heatSel.j + 0.5) * cellH;
+      let bx = ccx + 10; if (bx + bw > PAD.left + pw) bx = ccx - 10 - bw;
+      bx = Math.max(PAD.left + 2, bx);
+      let by = ccy - bh - 8; if (by < PAD.top + 2) by = ccy + 10;
+      ctx.fillStyle = 'rgba(13,17,23,0.93)'; ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, 5); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#e6edf3'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      lines.forEach((l, i) => ctx.fillText(l, bx + padB, by + padB + i * lineH));
+    }
+  }
+
+  // ── sweep worker ───────────────────────────────────────────────────────────
+  // Inlined as a Blob so no separate file is needed.
+  // Uses JS native f64 — essential at fine dt where float32 loses position updates.
+  const WORKER_SRC = `
+self.onmessage = function({ data: { jobs, params } }) {
+  const ANCHOR = 10;
+  const DT = params.dt;
+  const MAX_STEPS = Math.ceil(1600 / DT);
+
+  const out = jobs.map(({ idx, paramKey, paramVal, paramKey2, paramVal2 }) => {
+    const ov = { [paramKey]: paramVal };
+    if (paramKey2 !== undefined) ov[paramKey2] = paramVal2;
+    const p  = Object.assign({}, params, ov);
+    const ma = (1 - p.split) * p.m2;
+    const mb = p.split * p.m2;
+    const M  = p.m2;
+    // precompute per-simulation constants (avoids divisions inside the hot loop)
+    const k2_ma = p.k2 / ma,  k2_mb = p.k2 / mb,  k1_m1 = p.k1 / p.m1,  b1_m1 = p.b1 / p.m1;
+    const e = p.cor, m1 = p.m1, k1 = p.k1, k2 = p.k2, L1 = p.L1, L2 = p.L2, b1 = p.b1;
+    const mu = ma * mb / M;
+    const ma_M = ma / M;
+    const E_tot = 0.5 * M * p.v * p.v; // initial total energy of m2
+
+    if (params.chain) {
+      // N masses (each m2/N) + N-1 two-sided springs + one-sided front contact spring
+      const N = Math.max(2, Math.round(params.nchain)), mc = M / N, Le = L2 / N; // each spring L₁/N
+      const cx = [], cv = [], front0 = ANCHOR - L1 - 1 - Le;
+      for (let i = 0; i < N; i++) { cx.push(front0 - (N - 1 - i) * Le); cv.push(p.v); }
+      let x1 = ANCHOR - L1, v1 = 0, hit = false, nColl = 0, wasEngaged = false;
+      for (let n = 0; n < MAX_STEPS; n++) {
+        const ext1 = ANCHOR - x1 - L1;
+        const fAnchor = k1*ext1 + b1*ext1*ext1*ext1;
+        const gap = x1 - cx[N - 1];
+        const Fc = gap <= Le ? k2 * (gap - Le) : 0;
+        for (let i = 0; i < N; i++) {
+          let F = 0;
+          if (i > 0)     F += -k2 * ((cx[i] - cx[i - 1]) - Le);
+          if (i < N - 1) F +=  k2 * ((cx[i + 1] - cx[i]) - Le);
+          if (i === N - 1) F += Fc;
+          cv[i] += (F / mc) * DT;
+        }
+        v1 += ((fAnchor - Fc) / m1) * DT;
+        for (let i = 0; i < N; i++) cx[i] += cv[i] * DT;
+        x1 += v1 * DT;
+        const engaged = gap <= Le;
+        if (engaged && !wasEngaged) nColl++;
+        if (engaged) hit = true;
+        wasEngaged = engaged;
+        if (hit && gap > Le) {
+          let cmx = 0, vcm = 0, keSum = 0;
+          for (let i = 0; i < N; i++) { cmx += cx[i]; vcm += cv[i]; keSum += 0.5*mc*cv[i]*cv[i]; }
+          cmx /= N; vcm /= N;
+          if (vcm <= 0) {
+            let peInt = 0;
+            for (let i = 0; i < N - 1; i++) { const ee = (cx[i + 1] - cx[i]) - Le; peInt += 0.5*k2*ee*ee; }
+            const E_int = Math.max(0, keSum + peInt - 0.5*M*vcm*vcm);
+            const frontOffset = (N - 1) * Le / 2 + Math.sqrt(2 * (N - 1) * E_int / k2);
+            const ext1c = ANCHOR - x1 - L1;
+            const E_m1 = 0.5*m1*v1*v1 + 0.5*k1*ext1c*ext1c + 0.25*b1*ext1c*ext1c*ext1c*ext1c;
+            const A1 = Math.sqrt(4*E_m1 / (k1 + Math.sqrt(k1*k1 + 4*b1*E_m1)));
+            const x1_min = ANCHOR - L1 - A1;
+            if (cmx + frontOffset < x1_min - Le) {
+              const E_cm = 0.5*M*vcm*vcm;
+              return { idx, E_m1, E_pair: E_cm + E_int, E_cm, E_int, E_tot, nColl };
+            }
+          }
+        }
+      }
+      return { idx, E_m1: NaN, E_pair: NaN, E_cm: NaN, E_int: NaN, E_tot, nColl: 0 };
+    }
+
+    if (params.single) {
+      // single mass m2 + one-sided contact spring (lossless, no internal energy)
+      const m2 = M;
+      let x2 = ANCHOR - L1 - 1 - L2, v2 = p.v;
+      let x1 = ANCHOR - L1,          v1 = 0;
+      let hit = false, nColl = 0, wasEngaged = false;
+      for (let n = 0; n < MAX_STEPS; n++) {
+        const ext1 = ANCHOR - x1 - L1;
+        const fAnchor = k1*ext1 + b1*ext1*ext1*ext1;
+        const gap = x1 - x2;
+        const engaged = gap <= L2;
+        const Fc = engaged ? k2*(gap - L2) : 0;
+        v1 += ((fAnchor - Fc)/m1) * DT;
+        v2 += (Fc/m2) * DT;
+        x1 += v1 * DT;
+        x2 += v2 * DT;
+        if (engaged && !wasEngaged) nColl++;
+        if (engaged) hit = true;
+        if (params.single1 && wasEngaged && !engaged) {   // one-collision mode: stop at first release
+          const ext1c = ANCHOR - x1 - L1;
+          const E_m1 = 0.5*m1*v1*v1 + 0.5*k1*ext1c*ext1c + 0.25*b1*ext1c*ext1c*ext1c*ext1c;
+          const E_cm = 0.5*m2*v2*v2;
+          return { idx, E_m1, E_pair: E_cm, E_cm, E_int: 0, E_tot, nColl };
+        }
+        wasEngaged = engaged;
+        if (hit && !engaged && v2 <= 0) {
+          const ext1c = ANCHOR - x1 - L1;
+          const E_m1 = 0.5*m1*v1*v1 + 0.5*k1*ext1c*ext1c + 0.25*b1*ext1c*ext1c*ext1c*ext1c;
+          const A1 = Math.sqrt(4*E_m1/(k1 + Math.sqrt(k1*k1 + 4*b1*E_m1)));
+          const x1_min = ANCHOR - L1 - A1;
+          if (x1_min - x2 > L2) {
+            const E_cm = 0.5*m2*v2*v2;
+            return { idx, E_m1, E_pair: E_cm, E_cm, E_int: 0, E_tot, nColl };
+          }
+        }
+      }
+      return { idx, E_m1: NaN, E_pair: NaN, E_cm: NaN, E_int: NaN, E_tot, nColl: 0 };
+    }
+
+    let xa = ANCHOR - L1 - 1 - L2, va = p.v;
+    let xb = ANCHOR - L1 - 1,      vb = p.v;
+    let x1 = ANCHOR - L1,          v1 = 0;
+    let hit = false, nColl = 0, inContact = false;
+
+    for (let n = 0; n < MAX_STEPS; n++) {
+      const ext2 = xb - xa - L2;
+      const ext1 = ANCHOR - x1 - L1;
+      va += k2_ma * ext2 * DT;
+      vb -= k2_mb * ext2 * DT;
+      v1 += (k1_m1 * ext1 + b1_m1 * ext1*ext1*ext1) * DT;
+      xa += va * DT;
+      xb += vb * DT;
+      x1 += v1 * DT;
+
+      if (xb >= x1 && vb > v1 && !inContact) {
+        const va0 = vb, vb0 = v1;
+        vb = ((mb - e*m1)*va0 + (1+e)*m1*vb0) / (mb+m1);
+        v1 = ((m1 - e*mb)*vb0 + (1+e)*mb*va0) / (mb+m1);
+        xb = x1;
+        hit = true; nColl++;
+        inContact = true;
+      }
+      if (inContact) {
+        if (xb > x1 && vb > v1) {
+          const M = mb + m1, vc = (mb*vb + m1*v1) / M;
+          vb = vc; v1 = vc; xb = x1;
+        } else if (xb < x1 || vb < v1) {
+          inContact = false;
+        }
+      }
+
+      if (hit) {
+        const v_cm = (ma*va + mb*vb) / M;
+        if (v_cm <= 0) {
+          const relV   = vb - va;
+          const relX   = xb - xa - L2;
+          const E_int  = 0.5*mu*relV*relV + 0.5*k2*relX*relX;
+          const xb_max = (ma*xa + mb*xb)/M + ma_M*(L2 + Math.sqrt(2*E_int/k2));
+          const ext1c  = ANCHOR - x1 - L1;
+          const E_m1   = 0.5*m1*v1*v1 + 0.5*k1*ext1c*ext1c + 0.25*b1*ext1c*ext1c*ext1c*ext1c;
+          const A1     = Math.sqrt(4*E_m1 / (k1 + Math.sqrt(k1*k1 + 4*b1*E_m1)));
+          const x1_min = ANCHOR - L1 - A1;
+          if (xb_max < x1_min) {
+            const E_cm   = 0.5*M*v_cm*v_cm;
+            return { idx, E_m1,
+                     E_pair: E_cm + E_int, E_cm, E_int, E_tot, nColl };
+          }
+        }
+      }
+    }
+    return { idx, E_m1: NaN, E_pair: NaN, E_cm: NaN, E_int: NaN, E_tot, nColl: 0 };
+  });
+
+  self.postMessage(out);
+};`;
+
+  let _workerUrl = null;
+  function workerUrl() {
+    if (!_workerUrl)
+      _workerUrl = URL.createObjectURL(new Blob([WORKER_SRC], { type: 'application/javascript' }));
+    return _workerUrl;
+  }
+
+  // ── GPU sweep engine (WebGL2 GPGPU, f32 + df64 emulation) ──────────────────
+  // Each sweep cell maps to one texel. A fragment shader advances the same
+  // symplectic-Euler simulation as the worker in batches of STEPS_PER_PASS, with
+  // ping-pong float textures carrying state between passes. Two precision tricks
+  // push back the f32 wall: (1) relative coordinates (positions measured from m1's
+  // equilibrium ANCHOR-L1, so they stay near 0); (2) double-single ("fake f64")
+  // accumulation — each position/velocity is a (hi,lo) f32 pair, so per-step
+  // increments below ULP(hi) survive in lo. State now spans 5 RGBA32F targets:
+  //   T0:(XA.hi,XA.lo,va.hi,va.lo) T1:(XB…,vb…) T2:(X1…,v1…) T3:(nColl,flags) C:(E_m1,E_cm,E_int,nColl)
+  const PARAM_INDEX = { m1:0, m2:1, k1:2, k2:3, v:4, L1:5, L2:6, split:7, cor:8, b1:9 };
+
+  const GL_VERT = `#version 300 es
+in vec2 aPos;
+void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+  const GL_FRAG = `#version 300 es
+precision highp float;
+uniform sampler2D uT0, uT1, uT2, uT3, uC, uSwept;
+uniform float uDt, uM1, uM2, uK1, uK2, uV, uL1, uL2, uSplit, uCor, uB1;
+uniform int uSteps, uSwX, uSwY, uInit, uSingle;
+layout(location=0) out vec4 oT0;
+layout(location=1) out vec4 oT1;
+layout(location=2) out vec4 oT2;
+layout(location=3) out vec4 oT3;
+layout(location=4) out vec4 oC;
+
+float pick(int idx, float base, vec2 sw){
+  if (uSwX == idx) return sw.x;
+  if (uSwY == idx) return sw.y;
+  return base;
+}
+
+// "fake f64": add scalar b to a double-single value (hi,lo) via Knuth two-sum +
+// renormalize, so increments smaller than ULP(hi) survive in lo instead of vanishing.
+void dfadd(inout float hi, inout float lo, float b){
+  float s  = hi + b;
+  float bb = s - hi;
+  float e  = (hi - (s - bb)) + (b - bb); // exact rounding error of hi+b
+  e += lo;                                // fold in the carried low part
+  hi = s + e;
+  lo = e - (hi - s);
+}
+
+void main(){
+  ivec2 uv = ivec2(gl_FragCoord.xy);
+  vec2 sw = texelFetch(uSwept, uv, 0).xy;
+  float m1=pick(0,uM1,sw), m2=pick(1,uM2,sw), k1=pick(2,uK1,sw), k2=pick(3,uK2,sw);
+  float v=pick(4,uV,sw), L1=pick(5,uL1,sw), L2=pick(6,uL2,sw), split=pick(7,uSplit,sw), cor=pick(8,uCor,sw), b1=pick(9,uB1,sw);
+  float ma=(1.0-split)*m2, mb=split*m2, mu=ma*mb/m2;
+
+  // Relative coordinates (positions measured from m1's equilibrium ANCHOR-L1) AND
+  // double-single accumulation: each position/velocity is a (hi,lo) pair. Energies
+  // and the exit test use the hi parts (24 bits is plenty for the outputs); the lo
+  // part only protects the per-step accumulation. Frame-invariant ⇒ matches f64 worker.
+  float XAh, XAl, vah, val, XBh, XBl, vbh, vbl, X1h, X1l, v1h, v1l, nColl, flags;
+  vec4 C;
+  if (uInit == 1){
+    X1h=0.0; X1l=0.0; v1h=0.0; v1l=0.0; vah=v; val=0.0; vbh=v; vbl=0.0;
+    nColl=0.0; flags=0.0; C=vec4(-1.0);
+    XBh = (uSingle == 1) ? (-1.0 - L2) : -1.0;  // single: m2 (spring tip 1m from m1); pair: mB
+    XAh = -1.0 - L2;
+    XBl = 0.0; XAl = 0.0;
+  } else {
+    vec4 t0=texelFetch(uT0,uv,0), t1=texelFetch(uT1,uv,0), t2=texelFetch(uT2,uv,0), t3=texelFetch(uT3,uv,0);
+    C = texelFetch(uC, uv, 0);
+    XAh=t0.x; XAl=t0.y; vah=t0.z; val=t0.w;
+    XBh=t1.x; XBl=t1.y; vbh=t1.z; vbl=t1.w;
+    X1h=t2.x; X1l=t2.y; v1h=t2.z; v1l=t2.w;
+    nColl=t3.x; flags=t3.y;
+  }
+  bool hit       = mod(flags, 2.0) > 0.5;
+  bool inContact = mod(flags, 4.0) > 1.5;
+  bool done      = flags > 3.5;
+
+  float dt = uDt;
+  for (int n = 0; n < uSteps; n++){
+    if (done) break;
+    float ext1 = -X1h;
+
+    if (uSingle == 1){
+      // single mass m2 (= XB) with a one-sided contact spring; lossless
+      float gap = X1h - XBh;
+      bool engaged = gap <= L2;
+      float Fc = engaged ? k2*(gap - L2) : 0.0;
+      dfadd(v1h, v1l, ((k1*ext1 + b1*ext1*ext1*ext1 - Fc)/m1) * dt);
+      dfadd(vbh, vbl, (Fc/m2) * dt);
+      dfadd(X1h, X1l, v1h * dt);
+      dfadd(XBh, XBl, vbh * dt);
+      if (engaged && !inContact) nColl += 1.0;
+      if (engaged) hit = true;
+      inContact = engaged;
+      if (hit && !engaged && vbh <= 0.0){
+        float E_m1 = 0.5*m1*v1h*v1h + 0.5*k1*X1h*X1h + 0.25*b1*X1h*X1h*X1h*X1h;
+        float A1 = sqrt(4.0*E_m1 / (k1 + sqrt(k1*k1 + 4.0*b1*E_m1)));
+        if ((-A1) - XBh > L2){
+          C = vec4(E_m1, 0.5*m2*vbh*vbh, 0.0, nColl);
+          done = true;
+        }
+      }
+    } else {
+      // pair: mA (XA) – spring k2 – mB (XB), mB collides with m1
+      float ext2 = XBh - XAh - L2;
+      dfadd(vah, val,  (k2*ext2/ma) * dt);
+      dfadd(vbh, vbl, -(k2*ext2/mb) * dt);
+      dfadd(v1h, v1l,  ((k1*ext1 + b1*ext1*ext1*ext1)/m1) * dt);
+      dfadd(XAh, XAl, vah * dt);
+      dfadd(XBh, XBl, vbh * dt);
+      dfadd(X1h, X1l, v1h * dt);
+
+      if (XBh >= X1h && vbh > v1h && !inContact){
+        float va0 = vbh, vb0 = v1h;
+        vbh = ((mb - cor*m1)*va0 + (1.0+cor)*m1*vb0) / (mb+m1); vbl = 0.0;
+        v1h = ((m1 - cor*mb)*vb0 + (1.0+cor)*mb*va0) / (mb+m1); v1l = 0.0;
+        XBh = X1h; XBl = X1l;
+        hit = true; nColl += 1.0; inContact = true;
+      }
+      if (inContact){
+        if (XBh > X1h && vbh > v1h){
+          float M = mb+m1; float vc = (mb*vbh + m1*v1h)/M;
+          vbh = vc; vbl = 0.0; v1h = vc; v1l = 0.0; XBh = X1h; XBl = X1l;
+        } else if (XBh < X1h || vbh < v1h){ inContact = false; }
+      }
+      if (hit){
+        float v_cm = (ma*vah + mb*vbh) / m2;
+        if (v_cm <= 0.0){
+          float relV = vbh - vah;
+          float relX = XBh - XAh - L2;
+          float E_int = 0.5*mu*relV*relV + 0.5*k2*relX*relX;
+          float CM_X = (ma*XAh + mb*XBh) / m2;
+          float XB_max = CM_X + (ma/m2)*(L2 + sqrt(2.0*E_int/k2));
+          float E_m1 = 0.5*m1*v1h*v1h + 0.5*k1*X1h*X1h + 0.25*b1*X1h*X1h*X1h*X1h;
+          float A1 = sqrt(4.0*E_m1 / (k1 + sqrt(k1*k1 + 4.0*b1*E_m1)));
+          float X1_min = -A1;
+          if (XB_max < X1_min){
+            C = vec4(E_m1, 0.5*m2*v_cm*v_cm, E_int, nColl);
+            done = true;
+          }
+        }
+      }
+    }
+  }
+  flags = (hit ? 1.0 : 0.0) + (inContact ? 2.0 : 0.0) + (done ? 4.0 : 0.0);
+  oT0 = vec4(XAh, XAl, vah, val);
+  oT1 = vec4(XBh, XBl, vbh, vbl);
+  oT2 = vec4(X1h, X1l, v1h, v1l);
+  oT3 = vec4(nColl, flags, 0.0, 0.0);
+  oC  = C;
+}`;
+
+  let _gl = null, _glProg = null, _glQuad = null;
+  function gpuInit(){
+    if (_gl) return _gl;
+    const gl = document.createElement('canvas').getContext('webgl2', { antialias:false, depth:false, stencil:false });
+    if (!gl) throw new Error('WebGL2 not available');
+    if (!gl.getExtension('EXT_color_buffer_float')) throw new Error('float render targets unavailable');
+    if (gl.getParameter(gl.MAX_DRAW_BUFFERS) < 5) throw new Error('need ≥5 draw buffers (df64 state)');
+    const compile = (type, src) => {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error('shader: ' + gl.getShaderInfoLog(sh));
+      return sh;
+    };
+    const prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER, GL_VERT));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, GL_FRAG));
+    gl.bindAttribLocation(prog, 0, 'aPos');
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error('link: ' + gl.getProgramInfoLog(prog));
+    const quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+    _gl = gl; _glProg = prog; _glQuad = quad;
+    return gl;
+  }
+  function gpuAvailable(){
+    try {
+      const gl = document.createElement('canvas').getContext('webgl2');
+      return !!(gl && gl.getExtension('EXT_color_buffer_float') && gl.getParameter(gl.MAX_DRAW_BUFFERS) >= 5);
+    } catch (_) { return false; }
+  }
+
+  function makeFloatTex(gl, nx, ny, data){
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, nx, ny, 0, gl.RGBA, gl.FLOAT, data || null);
+    return t;
+  }
+
+  // Run the whole sweep grid on the GPU. Returns data[] indexed by j*nx + i.
+  async function runSweepGPU(px, py, xs, ys, base, onProgress){
+    const gl = gpuInit();
+    const nx = xs.length, ny = ys.length;
+
+    const swept = new Float32Array(nx * ny * 4);
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++){
+      const k = (j*nx + i) * 4;
+      swept[k] = xs[i];
+      swept[k+1] = (py != null) ? ys[j] : 0;
+    }
+    const swTex = makeFloatTex(gl, nx, ny, swept);
+
+    const NT = 5; // ping-pong targets: T0, T1, T2, T3, C
+    const state = () => Array.from({ length: NT }, () => makeFloatTex(gl, nx, ny));
+    let src = state(), dst = state();
+    const fbo = gl.createFramebuffer();
+    const ATT = [gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1, gl.COLOR_ATTACHMENT2,
+                 gl.COLOR_ATTACHMENT3, gl.COLOR_ATTACHMENT4];
+    const attach = tex => {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+      for (let a = 0; a < NT; a++) gl.framebufferTexture2D(gl.FRAMEBUFFER, ATT[a], gl.TEXTURE_2D, tex[a], 0);
+      gl.drawBuffers(ATT);
+    };
+    // dedicated single-attachment FBO for read-back (avoids disturbing the compute FBO)
+    const readFbo = gl.createFramebuffer();
+    const readInto = (tex, out) => {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, readFbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+      gl.readBuffer(gl.COLOR_ATTACHMENT0);
+      gl.readPixels(0, 0, nx, ny, gl.RGBA, gl.FLOAT, out);
+    };
+
+    gl.useProgram(_glProg);
+    gl.bindBuffer(gl.ARRAY_BUFFER, _glQuad);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.viewport(0, 0, nx, ny);
+    const U = n => gl.getUniformLocation(_glProg, n);
+    gl.uniform1f(U('uDt'), base.dt);
+    gl.uniform1f(U('uM1'), base.m1); gl.uniform1f(U('uM2'), base.m2);
+    gl.uniform1f(U('uK1'), base.k1); gl.uniform1f(U('uK2'), base.k2);
+    gl.uniform1f(U('uV'),  base.v);  gl.uniform1f(U('uL1'), base.L1);
+    gl.uniform1f(U('uL2'), base.L2); gl.uniform1f(U('uSplit'), base.split);
+    gl.uniform1f(U('uCor'), base.cor); gl.uniform1f(U('uB1'), base.b1);
+    gl.uniform1i(U('uSwX'), PARAM_INDEX[px]);
+    gl.uniform1i(U('uSwY'), (py != null) ? PARAM_INDEX[py] : -1);
+    gl.uniform1i(U('uSingle'), base.single ? 1 : 0);
+    // smaller batches for big grids keep each draw well under the GPU watchdog limit
+    const STEPS_PER_PASS = Math.max(16, Math.min(512, Math.floor(5e7 / (nx * ny))));
+    gl.uniform1i(U('uSteps'), STEPS_PER_PASS);
+
+    const SAMP = ['uT0', 'uT1', 'uT2', 'uT3', 'uC'];
+    const bindInputs = s => {
+      for (let a = 0; a < NT; a++) {
+        gl.activeTexture(gl.TEXTURE0 + a); gl.bindTexture(gl.TEXTURE_2D, s[a]); gl.uniform1i(U(SAMP[a]), a);
+      }
+      gl.activeTexture(gl.TEXTURE0 + NT); gl.bindTexture(gl.TEXTURE_2D, swTex); gl.uniform1i(U('uSwept'), NT);
+    };
+
+    const MAX_STEPS = Math.ceil(1600 / base.dt);
+    const HARD_CAP_PASSES = 200000; // guards the fine-dt no-progress case from hanging
+    const totalPasses = Math.min(Math.ceil(MAX_STEPS / STEPS_PER_PASS), HARD_CAP_PASSES);
+    const buf = new Float32Array(nx * ny * 4);
+
+    for (let pass = 0; pass < totalPasses; pass++){
+      gl.uniform1i(U('uInit'), pass === 0 ? 1 : 0);
+      bindInputs(src);
+      attach(dst);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      [src, dst] = [dst, src]; // src now holds the freshly written state
+
+      if (pass % 64 === 63 || pass === totalPasses - 1){
+        // T3 = (nColl, flags, …); test the flags channel (.y) for all-done
+        readInto(src[3], buf);
+        let allDone = true;
+        for (let t = 0; t < nx*ny; t++){ if (buf[t*4+1] < 3.5){ allDone = false; break; } }
+        if (onProgress) onProgress(Math.min((pass+1)*STEPS_PER_PASS, MAX_STEPS), MAX_STEPS);
+        await new Promise(r => setTimeout(r, 0)); // yield to keep the UI responsive
+        if (allDone) break;
+      }
+    }
+
+    // read results (texture C, index 4, of the latest state)
+    readInto(src[4], buf);
+
+    const data = new Array(nx * ny);
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++){
+      const idx = j*nx + i, k = idx*4, E_m1 = buf[k];
+      let m2 = base.m2, v = base.v;
+      if (px === 'm2') m2 = xs[i]; else if (py === 'm2') m2 = ys[j];
+      if (px === 'v')  v  = xs[i]; else if (py === 'v')  v  = ys[j];
+      const E_tot = 0.5 * m2 * v * v;
+      data[idx] = (E_m1 < 0)
+        ? { idx, E_m1: NaN, E_pair: NaN, E_cm: NaN, E_int: NaN, E_tot, nColl: 0 }
+        : { idx, E_m1, E_cm: buf[k+1], E_int: buf[k+2], E_pair: buf[k+1] + buf[k+2], E_tot, nColl: buf[k+3] };
+    }
+
+    gl.deleteFramebuffer(fbo);
+    gl.deleteFramebuffer(readFbo);
+    [...src, ...dst, swTex].forEach(t => gl.deleteTexture(t));
+    return data;
+  }
+
+  const r9 = v => Math.round(v * 1e9) / 1e9;
+  // n evenly spaced samples spanning [s, e] inclusive (n = 1 → just s)
+  const axisVals = (s, e, n) => {
+    n = Math.max(1, Math.round(n));
+    if (n === 1) return [r9(s)];
+    return Array.from({ length: n }, (_, i) => r9(s + (e - s) * i / (n - 1)));
+  };
+
+  document.getElementById('sw-run').addEventListener('click', async () => {
+    const mode   = document.getElementById('sw-mode').value;
+    const dt     = parseFloat(document.getElementById('sw-dt').value);
+    const status = document.getElementById('sw-status');
+    if (!isFinite(dt) || dt <= 0) return;
+
+    const px    = document.getElementById('sw-param').value;
+    const startX = parseFloat(document.getElementById('sw-start').value);
+    const endX   = parseFloat(document.getElementById('sw-end').value);
+    const nX     = parseFloat(document.getElementById('sw-steps').value);
+    if (!isFinite(startX) || !isFinite(endX) || !isFinite(nX) || nX < 1) return;
+    const xs = axisVals(startX, endX, nX);             // display axis (T values if px is T)
+    const aPx = resolveSweep(px, xs);                   // actual param + converted values
+    if (!aPx) { status.textContent = `${PARAM_LABELS[px]}: set its "driven" selector to k or m first`; return; }
+
+    let jobs, py, ys, aPy = null, coupled = false;
+    if (mode === '2d') {
+      py = document.getElementById('sw-param2').value;
+      if (py === px) { status.textContent = 'pick two different parameters'; return; }
+      const startY = parseFloat(document.getElementById('sw-start2').value);
+      const endY   = parseFloat(document.getElementById('sw-end2').value);
+      const nY     = parseFloat(document.getElementById('sw-steps2').value);
+      if (!isFinite(startY) || !isFinite(endY) || !isFinite(nY) || nY < 1) return;
+      ys = axisVals(startY, endY, nY);
+      aPy = resolveSweep(py, ys);
+      if (!aPy) { status.textContent = `${PARAM_LABELS[py]}: set its "driven" selector to k or m first`; return; }
+      if (periodConflict(px, py) || periodConflict(py, px)) {
+        status.textContent = 'a period axis can’t also sweep the variable it drives (or split)'; return;
+      }
+      // If a period axis is paired with the very m/k it reads, its driven value must be
+      // computed per cell from the other axis (resolveSweep alone uses the fixed input).
+      const xCoupled = periodInput(px) === py;
+      const yCoupled = periodInput(py) === px;
+      coupled = xCoupled || yCoupled;
+      jobs = [];
+      let idx = 0;
+      for (let j = 0; j < ys.length; j++)
+        for (let i = 0; i < xs.length; i++) {
+          const vX = xCoupled ? periodDrivenVal(px, xs[i], ys[j]) : aPx.actual[i];
+          const vY = yCoupled ? periodDrivenVal(py, ys[j], xs[i]) : aPy.actual[j];
+          jobs.push({ idx: idx++, paramKey: aPx.key, paramVal: vX, paramKey2: aPy.key, paramVal2: vY });
+        }
+    } else {
+      jobs = xs.map((v, i) => ({ idx: i, paramKey: aPx.key, paramVal: aPx.actual[i] }));
+    }
+
+    status.textContent = 'running…';
+    document.getElementById('sw-results').innerHTML = '';
+
+    const baseParams = { ...p, dt, single: _m2mode === 'single', chain: _m2mode === 'chain', nchain: _nchain, single1: _single1 };
+    const engine = document.getElementById('sw-engine').value;
+    let data;
+
+    async function runWorkers() {
+      const nWorkers = Math.min(navigator.hardwareConcurrency || 4, jobs.length);
+      // distribute round-robin so each worker gets an interleaved slice
+      const chunks = Array.from({ length: nWorkers }, () => []);
+      jobs.forEach((job, i) => chunks[i % nWorkers].push(job));
+      let done = 0;
+      try {
+        const url = workerUrl();
+        const batches = await Promise.all(
+          chunks.filter(c => c.length).map(chunk => new Promise((res, rej) => {
+            const w = new Worker(url);
+            w.onmessage = e => { done += chunk.length; status.textContent = `${done}/${jobs.length}…`; w.terminate(); res(e.data); };
+            w.onerror   = e => { w.terminate(); rej(e); };
+            w.postMessage({ jobs: chunk, params: baseParams });
+          }))
+        );
+        const out = new Array(jobs.length);
+        batches.flat().forEach(r => { out[r.idx] = r; });
+        status.textContent = `${jobs.length} run${jobs.length !== 1 ? 's' : ''}, ${nWorkers} workers`;
+        return out;
+      } catch (err) {
+        console.warn('Workers failed, running synchronously:', err);
+        status.textContent = 'running (sync)…';
+        await new Promise(r => setTimeout(r, 20));
+        const out = jobs.map(j => {
+          const ov = { [j.paramKey]: j.paramVal };
+          if (j.paramKey2 !== undefined) ov[j.paramKey2] = j.paramVal2;
+          return { idx: j.idx, ...sweepOne(ov, dt) };
+        });
+        status.textContent = `${jobs.length} runs (sync fallback)`;
+        return out;
+      }
+    }
+
+    if (engine === 'gpu' && _m2mode !== 'chain' && !(_m2mode === 'single' && _single1) && !coupled) {   // GPU can't do a chain, the single one-collision exit, or a coupled period↔m/k grid
+      try {
+        data = await runSweepGPU(aPx.key, mode === '2d' ? aPy.key : null, aPx.actual, mode === '2d' ? aPy.actual : [0], baseParams,
+          (d, t) => { status.textContent = `GPU ${Math.round(100 * d / t)}%…`; });
+        status.textContent = `${jobs.length} runs, GPU (WebGL f32)`;
+      } catch (err) {
+        console.warn('GPU sweep failed, falling back to workers:', err);
+        status.textContent = 'GPU unavailable; using workers…';
+        data = await runWorkers();
+      }
+    } else {
+      data = await runWorkers();
+    }
+
+    if (mode === '2d') {
+      renderHeatmap({ px, py, xs, ys, cells: data, hide: [aPx.key, aPy.key] });
+    } else {
+      renderSweepTable(px, xs.map((v, i) => ({ val: v, ...data[i] })), dt, aPx.key);
+    }
+  });
+
+  document.getElementById('sw-mode').addEventListener('change', e => {
+    const is2d = e.target.value === '2d';
+    document.getElementById('sw-row-y').style.display = is2d ? '' : 'none';
+    document.getElementById('sw-lbl-x').textContent = is2d ? 'Sweep X' : 'Sweep';
+  });
+
+  // ── split: log-scale slider (p.split = mB/m₂, the leading-mass fraction) ──
+  // Logistic mapping: pos 0..100000 → mB fraction via 1/(1 + 10^(5 − pos/10000))
+  // Each 10 000 slider steps ≈ one decade. Midpoint (50 000) = 0.5 (equal masses).
+  function splitFracToSlider(f) {
+    const c = Math.max(1e-9, Math.min(1 - 1e-9, f));
+    return Math.round(10000 * (5 - Math.log10(1 / c - 1)));
+  }
+  function splitSliderToFrac(pos) {
+    return 1 / (1 + Math.pow(10, 5 - pos / 10000));
+  }
+  function applySplit(bFrac) {
+    bFrac = Math.max(1e-9, Math.min(1 - 1e-9, bFrac));
+    p.split = bFrac;
+    document.getElementById('sl-split').value  = splitFracToSlider(bFrac);
+    document.getElementById('in-split').value  = bFrac;
+    reconcile2(); // split changes μ → recompute the pair's driven variable
+    if (!playing) { render(); updateStatus(); }
+  }
+  document.getElementById('sl-split').addEventListener('input', e => {
+    applySplit(splitSliderToFrac(parseFloat(e.target.value)));
+    saveState();
+  });
+  document.getElementById('in-split').addEventListener('change', e => {
+    const val = parseFloat(e.target.value);
+    if (isFinite(val) && val > 0 && val < 1) { applySplit(val); saveState(); }
+  });
+
+  // ── persistence (localStorage) ────────────────────────────────────────────
+  const STORE_KEY = 'optimum-bounce-webgl-v1';
+
+  function saveState() {
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      p,
+      DT,
+      speedMult,
+      m2mode: _m2mode,
+      nchain: _nchain,
+      single1: _single1,
+      drive1: _drive1,
+      drive2: _drive2,
+      t2contact: _t2contact,
+      sweep: {
+        mode:   document.getElementById('sw-mode').value,
+        engine: document.getElementById('sw-engine').value,
+        param:  document.getElementById('sw-param').value,
+        start:  document.getElementById('sw-start').value,
+        end:    document.getElementById('sw-end').value,
+        steps:  document.getElementById('sw-steps').value,
+        dt:     document.getElementById('sw-dt').value,
+        param2: document.getElementById('sw-param2').value,
+        start2: document.getElementById('sw-start2').value,
+        end2:   document.getElementById('sw-end2').value,
+        steps2: document.getElementById('sw-steps2').value,
+      }
+    }));
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+
+      if (saved.p) {
+        Object.assign(p, saved.p);
+        for (const [key, val] of Object.entries(saved.p)) {
+          const inp = document.getElementById('in-' + key);
+          const sl  = document.getElementById('sl-' + key);
+          if (key === 'split') {
+            // p.split is the mB fraction, shown on a log-scale slider
+            if (inp) inp.value = val;
+            if (sl)  sl.value  = splitFracToSlider(val);
+          } else {
+            if (inp) inp.value = val;
+            if (sl)  sl.value  = Math.max(parseFloat(sl.min), Math.min(parseFloat(sl.max), val));
+          }
+        }
+      }
+      if (saved.DT) {
+        DT = saved.DT;
+        document.getElementById('in-dt').value = saved.DT;
+      }
+      if (saved.speedMult) {
+        speedMult = saved.speedMult;
+        document.getElementById('sel-speed').value = saved.speedMult;
+      }
+      if (saved.m2mode) { _m2mode = saved.m2mode; document.getElementById('m2-mode').value = _m2mode; }
+      if (saved.nchain) { _nchain = saved.nchain; document.getElementById('n-chain').value = _nchain; }
+      if (saved.single1 != null) { _single1 = saved.single1; document.getElementById('single1').checked = _single1; }
+      if (saved.drive1) { _drive1 = saved.drive1; document.getElementById('drv-1').value = _drive1; }
+      if (saved.drive2) { _drive2 = saved.drive2; document.getElementById('drv-2').value = _drive2; }
+      if (saved.t2contact != null) { _t2contact = saved.t2contact; document.getElementById('t2-contact').checked = _t2contact; }
+      if (saved.sweep) {
+        const sw = saved.sweep;
+        if (sw.mode   != null) document.getElementById('sw-mode').value   = sw.mode;
+        if (sw.engine != null) document.getElementById('sw-engine').value = sw.engine;
+        if (sw.param  != null) document.getElementById('sw-param').value  = sw.param;
+        if (sw.start  != null) document.getElementById('sw-start').value  = sw.start;
+        if (sw.end    != null) document.getElementById('sw-end').value    = sw.end;
+        if (sw.steps  != null) document.getElementById('sw-steps').value  = sw.steps;
+        if (sw.dt     != null) document.getElementById('sw-dt').value     = sw.dt;
+        if (sw.param2 != null) document.getElementById('sw-param2').value = sw.param2;
+        if (sw.start2 != null) document.getElementById('sw-start2').value = sw.start2;
+        if (sw.end2   != null) document.getElementById('sw-end2').value   = sw.end2;
+        if (sw.steps2 != null) document.getElementById('sw-steps2').value = sw.steps2;
+        // reflect mode in the Y-row visibility and X label
+        const is2d = document.getElementById('sw-mode').value === '2d';
+        document.getElementById('sw-row-y').style.display = is2d ? '' : 'none';
+        document.getElementById('sw-lbl-x').textContent = is2d ? 'Sweep X' : 'Sweep';
+      }
+    } catch (_) { /* ignore corrupt data */ }
+  }
+
+  // ── init ───────────────────────────────────────────────────────────────────
+  loadState();
+  applyMode();           // disabled states for split/e + driven greying
+  s = freshState();      // geometry depends on the (possibly loaded) m2 mode
+  seedPeriodInputs();    // T sliders derived from the loaded m/k/split
+  if (!gpuAvailable()) {
+    const opt = document.querySelector('#sw-engine option[value="gpu"]');
+    if (opt) { opt.disabled = true; opt.textContent = 'GPU (WebGL2 unavailable)'; }
+    document.getElementById('sw-engine').value = 'cpu';
+  }
+  window.addEventListener('resize', () => { resize(); render(); });
+  resize();
+  render();
+  updateStatus();
+
+  // save on every control change
+  document.getElementById('controls').addEventListener('change', saveState);
+  document.getElementById('controls').addEventListener('input',  saveState);
+  document.getElementById('sweep-panel').addEventListener('change', saveState);
+})();
+</script>
+</body>
+</html>
