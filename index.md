@@ -67,9 +67,3 @@ I set up an online shop called [Maths Gear](https://mathsgear.co.uk) with Matt P
 ## 📢 Get in touch 
 
 Any questions or comments, [get in touch](/contact).
-
-## ✉️ Subscribe to the mailing list
-
-I've never actually sent an email to this list. But at some point I might use it to send an update about what I'm up to. Your name and email will be stored securely at mailchimp.com in compliance with all current data protection regulations. Their privacy policy can be found [here](https://mailchimp.com/legal/privacy/#3._Privacy_for_Contacts). I will only ever use your data to send you emails. I will never pass it onto anyone else, and you can unsubscribe any time.
-
-{% include signup.html %}

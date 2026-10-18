@@ -271,39 +271,3 @@ a:hover picture img {
 .icon-moon {
     display: var(--icon-moon);
 }
-
-#mc_embed_signup form {
-    padding: 24px;
-    border: 1px solid var(--border);
-    border-radius: $radius;
-    background: var(--surface);
-}
-#mc_embed_signup .mc-field-group {
-    padding-bottom: 16px;
-}
-#mc_embed_signup .mc-field-group label {
-    display: block;
-    font-size: 1em;
-    font-weight: 600;
-    margin-bottom: 6px;
-}
-#mc_embed_signup .mc-field-group input {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 10px 12px;
-    font: inherit;
-    font-size: 1.1em;
-    color: var(--text);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-#mc_embed_signup .mc-field-group input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--glow);
-}
-#mc_embed_signup .jumbo-button {
-    margin: 4px 0 0;
-}
