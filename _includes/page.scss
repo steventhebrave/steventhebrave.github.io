@@ -1,36 +1,45 @@
 @import "variables";
 
-body {
-    margin:0;
-}
-
 .avatar {
+    display: block;
     border-radius: 50%;
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--accent);
 }
 
 .jumbo {
     text-align: center;
-    padding: 20px 0px 60px 0px;
-    border-bottom: 1px solid $grey-color-light;
+    padding: 48px 20px 36px;
+    border-bottom: 1px solid var(--border);
 }
 
 nav {
-    background: #F5F5F5;
-    border-bottom: 4px solid $brand-color;
-    min-height: 50px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+    background: var(--surface);
+    border-bottom: 4px solid var(--accent);
 }
 
 nav a {
-	position: absolute;
-	left: 50%;
-	margin-top: 10px;
 	-webkit-tap-highlight-color: transparent;
 }
 
-nav a img {
-	margin-left: -50%;
+nav .theme-toggle {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    margin-top: -20px;
+}
+
+.main-title {
+    font-size: 2.4em;
+    @media screen and (max-width: $on-palm) {
+        font-size: 1.8em;
+    }
 }
 
 .pagination {
@@ -38,16 +47,21 @@ nav a img {
     text-align: center
 }
 .pagination a:hover {
-    background-color: #f1f1f1;
-    color: #333
+    background-color: var(--surface);
+    color: var(--link-hover)
 }
 .pagination a,
 .pagination span {
-    padding: 7px 18px;
-    border: 1px solid #eee;
-    margin-left: -4px;
-    margin-right: -4px;
-    background-color: #ffffff;
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 0 2px 6px;
+    background-color: var(--bg);
     display: inline-block;
     text-decoration: none
+}
+.pagination .active {
+    background-color: var(--btn);
+    border-color: var(--btn);
+    color: var(--btn-text);
 }

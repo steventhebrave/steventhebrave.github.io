@@ -7,7 +7,22 @@
   {% seo %}
 
   <link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ "/feed.xml" | prepend: site.baseurl | prepend: site.url }}">
-  
+
+  {% comment %}Applies a saved theme choice before the page paints. Keep this free of // comments: compress.html joins it onto one line.{% endcomment %}
+  <script>
+    (function (d) {
+      d.classList.add('js');
+      try { var t = localStorage.getItem('theme'); if (t) d.setAttribute('data-theme', t); } catch (e) {}
+    })(document.documentElement);
+    function toggleTheme() {
+      var d = document.documentElement;
+      var t = d.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      t = t == 'dark' ? 'light' : 'dark';
+      d.setAttribute('data-theme', t);
+      try { localStorage.setItem('theme', t); } catch (e) {}
+    }
+  </script>
+
   <style>
           {% capture include_to_scssify %}
           {% include main.scss %}

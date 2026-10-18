@@ -1,22 +1,59 @@
 // Our variables
-$base-font-family: sans-serif;
+// System fonts only: no web font downloads, so pages stay fast
+$base-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
 $base-font-size:   16px;
 $base-font-weight: 300;
 $small-font-size:  $base-font-size * 0.875;
-$base-line-height: 1.5;
+$base-line-height: 1.6;
 
 $spacing-unit:     30px;
 
-$text-color:       #111111;
-$background-color: #fdfdfd;
 $brand-color:      #a1ad59;
-$h-color:          #5d536b;
-$grey-color:       #828282;
-$grey-color-light: lighten($grey-color, 40%);
-$grey-color-dark:  darken($grey-color, 25%);
+$radius:           12px;
 
 // Width of the content area
-$content-width:    800px;
+$content-width:    660px;
 
 $on-palm:          600px;
 $on-laptop:        800px;
+
+// Colours live in CSS custom properties so they can switch with the theme.
+// Light is the default; dark applies when the OS asks for it (unless the
+// visitor picked light) or when the visitor picked dark with the toggle.
+@mixin light-theme {
+    color-scheme: light;
+    --bg:          #fbfbf8;
+    --surface:     #f2f3ec;
+    --text:        #1b1c19;
+    --muted:       #5d6157;
+    --border:      #e2e4da;
+    --accent:      #{$brand-color};
+    --link:        #56650f;
+    --link-hover:  #3c4705;
+    --btn:         #5f6f17;
+    --btn-hover:   #4a5709;
+    --btn-text:    #fff;
+    --glow:        rgba(161, 173, 89, 0.22);
+    --shadow:      0 1px 2px rgba(27, 28, 25, 0.06), 0 6px 20px rgba(27, 28, 25, 0.08);
+    --icon-sun:    none;
+    --icon-moon:   block;
+}
+
+@mixin dark-theme {
+    color-scheme: dark;
+    --bg:          #121311;
+    --surface:     #1c1e1a;
+    --text:        #e8e9e3;
+    --muted:       #a3a69a;
+    --border:      #2d302a;
+    --accent:      #{$brand-color};
+    --link:        #c5d27a;
+    --link-hover:  #e0eaa5;
+    --btn:         #b5c26a;
+    --btn-hover:   #c9d585;
+    --btn-text:    #121311;
+    --glow:        rgba(161, 173, 89, 0.14);
+    --shadow:      0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 20px rgba(0, 0, 0, 0.35);
+    --icon-sun:    block;
+    --icon-moon:   none;
+}

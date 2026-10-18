@@ -1,42 +1,76 @@
 @import "variables";
 
 body {
-    margin:0;
-    border-top: 4px solid $brand-color;
+    border-top: 4px solid var(--accent);
+}
+
+.site-header {
+    background: radial-gradient(ellipse 80% 100% at 50% 0%, var(--glow), transparent 70%);
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
 }
 
 .avatar {
     border-radius: 50%;
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
+    box-shadow: 0 0 0 5px var(--bg), 0 0 0 8px var(--accent), var(--shadow);
+    margin-bottom: 20px;
+    @media screen and (max-width: $on-palm) {
+        width: 140px;
+        height: 140px;
+    }
 }
 
 .jumbo {
     text-align: center;
-    padding: 40px 0px 30px 0px;
-    border-bottom: 1px solid $grey-color-light;
+    padding: 56px 20px 40px;
 }
 
 .jumbo a {
-    text-decoration: none;
-    font-weight: normal;
+    font-weight: 600;
 }
 
 .tagline {
-    font-size: 1.5em;
+    font-size: 1.4em;
     font-weight: 400;
-    color: $grey-color;
-    opacity: 0.7;
-    margin-top: 0;
+    line-height: 1.45;
+    color: var(--muted);
+    max-width: 30em;
+    margin: 0.5em auto 1.4em;
      @media screen and (max-width: $on-palm) {
-         font-size: 1.25em;
+         font-size: 1.15em;
+    }
+}
+
+.tagline a {
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
     }
 }
 
 .icon {
-  height: 0.75em;
-  width: 0.75em;
-  fill: white;
+  height: 0.8em;
+  width: 0.8em;
+  fill: currentColor;
+}
+
+// Each section of the home page starts with an h2: give them some air
+.post-content > h2 {
+    margin-top: 2.2em;
+    padding-top: 1.6em;
+    border-top: 1px solid var(--border);
+}
+
+.post-content > h2:first-child {
+    margin-top: 0.5em;
+    padding-top: 0;
+    border-top: 0;
 }
 
 .embed-container {
